@@ -8,11 +8,20 @@ function g:ScourFileNode.new(path)
 
 endfu
 
-function g:ScourFileNode.getPath()
-  echo self.path
+function! g:ScourFileNode.getPath()
+  return self.path
 endfu
 
+function g:ScourFileNode.renderToString(indLevel)
+  let l:str = self.path . '\n'
+  return l:str
+endfu
 
-let s:file_one = ScourFileNode.new('/home/bhd-windows/.vim/homebrew/scour')
+function g:ScourFileNode.draw(indentLvl, lineIndex)
+  call setline(a:lineIndex, self.path)
+  echo a:lineIndex
 
-" call s:file_one.getPath()
+  let l:lineIndex = a:lineIndex
+  let l:lineIndex += 1
+  return l:lineIndex
+endfu
