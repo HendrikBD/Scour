@@ -3,9 +3,9 @@ let g:ScourFileNode={}
 function g:ScourFileNode.new(path)
   let l:newScourFileNode = copy(self)
   let l:newScourFileNode.path = a:path
+  let l:newScourFileNode.displayStr = split(a:path, '/')[-1]
   
   return l:newScourFileNode
-
 endfu
 
 function! g:ScourFileNode.getPath()
@@ -18,8 +18,16 @@ function g:ScourFileNode.renderToString(indLevel)
 endfu
 
 function g:ScourFileNode.draw(indentLvl, lineIndex)
-  call setline(a:lineIndex, self.path)
-  echo a:lineIndex
+  let l:displayStr = ''
+
+  let l:i = 0
+  while l:i < a:indentLvl
+    let l:displayStr = l:displayStr . '  '
+    let l:i += 1
+  endw
+  let l:displayStr = l:displayStr . self.displayStr
+
+  call setline(a:lineIndex, l:displayStr)
 
   let l:lineIndex = a:lineIndex
   let l:lineIndex += 1
