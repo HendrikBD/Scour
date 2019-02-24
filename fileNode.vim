@@ -12,6 +12,10 @@ function! g:ScourFileNode.getPath()
   return self.path
 endfu
 
+function! g:ScourFileNode.getPaths()
+  return [self.path]
+endfu
+
 function g:ScourFileNode.renderToString(indLevel)
   let l:str = self.path . '\n'
   return l:str
