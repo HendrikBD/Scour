@@ -23,6 +23,7 @@ endfu
 
 function g:ScourFileNode.draw(indentLvl, lineIndex)
   let l:displayStr = ''
+  let l:lineIndex = a:lineIndex
 
   let l:i = 0
   while l:i < a:indentLvl
@@ -31,9 +32,19 @@ function g:ScourFileNode.draw(indentLvl, lineIndex)
   endw
   let l:displayStr = l:displayStr . self.displayStr
 
-  call setline(a:lineIndex, l:displayStr)
-
-  let l:lineIndex = a:lineIndex
+  call append(l:displayStr)
+  " call setline(a:lineIndex, l:displayStr)
   let l:lineIndex += 1
+
   return l:lineIndex
+endfu
+
+fu g:ScourFileNode.updateFilterTree(pathArr, filterTree)
+  let l:filterTree = a:filterTree
+
+  if !has_key(l:filterTree, 'node')
+    let l:filterTree.node = self
+  endif
+
+  return l:filterTree
 endfu
