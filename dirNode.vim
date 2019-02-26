@@ -3,7 +3,7 @@ let g:ScourDirNode={}
 function g:ScourDirNode.new(path)
   let l:newScourDirNode = copy(self)
   let l:newScourDirNode.path = a:path
-  let l:newScourDirNode.displayStr = split(a:path, '/')[-1]
+  let l:newScourDirNode.displayStr = split(a:path, '/')[-1] . '/'
 
   cal l:newScourDirNode.loadChildren()
   
@@ -54,25 +54,10 @@ function g:ScourDirNode.drawSelected(paths)
   endfo
 endf
 
-
-function g:ScourDirNode.draw(indentLvl, lineIndex)
-
-  let l:lineIndex = a:lineIndex
-  let l:displayStr = ''
-
-  let l:i = 0
-  while l:i < a:indentLvl
-    let l:displayStr = l:displayStr . '  '
-    let l:i += 1
-  endw
-  let l:displayStr = l:displayStr . self.displayStr
-
-  call setline(a:lineIndex, l:displayStr)
-  let l:lineIndex += 1
-
-  return self.drawChildNodes(a:indentLvl + 1, l:lineIndex)
-endfu
-
+function g:ScourDirNode.draw(indentLvl)
+  let l:indent = g:ScourHelper.getIndent(a:indentLvl)
+  cal append(0, l:indent . self.displayStr)
+endf
 
 function g:ScourDirNode.drawChildNodes(indentLvl, lineIndex)
   let l:lineIndex = a:lineIndex
@@ -105,16 +90,6 @@ fu g:ScourDirNode.updateFilterTree(pathArr, filterTree)
     let l:filterTree.childNodes[a:pathArr[0]]  = self.childNodes[a:pathArr[0]].updateFilterTree(a:pathArr[1:], l:filterTree.childNodes[a:pathArr[0]])
   endif
 
-
-  " echo '\n'
-  " let l:filterTree.childNodes[a:pathArr[0]] = self.childNodes[a:pathArr[0]].updateFilterTree(a:pathArr[1:], l:filterTree.childNodes[a:pathArr[0]] )
-
   return l:filterTree
 
 endfu
-
-" let s:dir = ScourDirNode.new(getcwd())
-" for s:i in items(s:dir.childNodes)
-"   echo s:i[0]
-" endfo
-" echo s:dir.getNestedPaths()

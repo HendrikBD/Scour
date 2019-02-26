@@ -21,22 +21,9 @@ function g:ScourFileNode.renderToString(indLevel)
   return l:str
 endfu
 
-function g:ScourFileNode.draw(indentLvl, lineIndex)
-  let l:displayStr = ''
-  let l:lineIndex = a:lineIndex
-
-  let l:i = 0
-  while l:i < a:indentLvl
-    let l:displayStr = l:displayStr . '  '
-    let l:i += 1
-  endw
-  let l:displayStr = l:displayStr . self.displayStr
-
-  call append(l:displayStr)
-  " call setline(a:lineIndex, l:displayStr)
-  let l:lineIndex += 1
-
-  return l:lineIndex
+function g:ScourFileNode.draw(indentLvl)
+  let l:indent = g:ScourHelper.getIndent(a:indentLvl)
+  cal append(0, l:indent . self.displayStr)
 endfu
 
 fu g:ScourFileNode.updateFilterTree(pathArr, filterTree)

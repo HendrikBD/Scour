@@ -1,5 +1,6 @@
 so ./fileNode.vim
 so ./dirNode.vim
+so ./helper.vim
 so ./window.vim
 
 let g:Scour={}
@@ -44,10 +45,9 @@ function g:Scour.displayCWD()
   call self.drawAllChildNodes(2, l:lineIndex)
 endf
 
-fu g:Scour.displayFiltered(filteredPaths)
-  " let self.window = g:Window.new()
-  " call self.window.openWindow()
-
+fu g:Scour.displayFromArray(filteredPaths)
+  let self.window = g:Window.new()
+  call self.window.openWindow()
 
   " Building a temporary filter object that can be used to draw a filtered
   " directory tree
@@ -63,34 +63,21 @@ fu g:Scour.displayFiltered(filteredPaths)
     en
   endfo
 
-  " echo self.filterTree.childNodes
-
+  call self.drawTree(self.filterTree.root, 0)
 endfu
 
+fu g:Scour.drawTree(tree, indentLvl)
+
+  if has_key(a:tree, 'childNodes')
+    for l:child in items(a:tree.childNodes)
+      cal self.drawTree(l:child[1], a:indentLvl + 1)
+    endfo
+  endif
+
+  call a:tree.node.draw(a:indentLvl)
+endfu
 
 let g:scour = g:Scour.new(getcwd())
 
-call g:scour.displayFiltered(g:scour.root.getPaths())
-
-echo g:scour.filterTree.root.childNodes
-
-" echo items(g:scour.root.childNodes)
-" for s:i in items(g:scour.root.childNodes)
-"   echo s:i[0]
-" endfo
-
-" echo items(g:scour.root.childNodes)
-" for s:i in items(g:scour.root.childNodes)
-"   echo s:i[0]
-" endfo
-
-" echo g:scour.root.getPaths()
-" call g:scour.displayFiltered(g:scour.root.getPaths())
-
-" for s:i in items(g:scour.filterTree.root.childNodes)
-"   echo s:i[0]
-" endfo
-
-" g:scour.getAllPaths
-" call g:scour.displayCWD()
-" call g:scour.displayFiltered(g:scour.root.getPaths())
+call g:scour.displayFromArray(g:scour.root.getPaths())
+" call g:scour.displayFromArray(['/home/bhd-windows/.vim/homebrew/scour/window.vim', '/home/bhd-windows/.vim/homebrew/scour/doc'])
