@@ -1,6 +1,7 @@
 so ./fileNode.vim
 so ./dirNode.vim
 so ./helper.vim
+so ./prompt.vim
 so ./window.vim
 
 let g:Scour={}
@@ -8,8 +9,17 @@ let g:Scour={}
 function g:Scour.new(path)
   let l:newScour = copy(self)
   let l:newScour.root = g:ScourDirNode.new(a:path)
+  let l:newScour.prompt = g:ScourPrompt.new()
+
+  " let l:newScour.prompt = g:ScourPrompt.new()
+  " echo l:newScour.root.getPaths()
+  call l:newScour.prompt.addUpdateFunction(l:newScour.test)
   
   return l:newScour
+endfu
+
+function g:Scour.test()
+  echo 'test'
 endfu
 
 function g:Scour.drawAllChildNodes(indentLvl, lineIndex)
@@ -77,7 +87,7 @@ fu g:Scour.drawTree(tree, indentLvl)
   call a:tree.node.draw(a:indentLvl)
 endfu
 
+
 let g:scour = g:Scour.new(getcwd())
 
-call g:scour.displayFromArray(g:scour.root.getPaths())
-" call g:scour.displayFromArray(['/home/bhd-windows/.vim/homebrew/scour/window.vim', '/home/bhd-windows/.vim/homebrew/scour/doc'])
+nnoremap <leader>/ :call g:scour.prompt.toggle()<CR>

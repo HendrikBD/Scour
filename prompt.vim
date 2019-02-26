@@ -5,6 +5,7 @@ function s:prompt.new()
   let l:newPrompt = copy(self)
   let l:newPrompt.value = ''
   let l:newPrompt.keyInput = 0
+  let l:newPrompt.updateFcns = []
 
   return l:newPrompt
 endfu
@@ -56,12 +57,14 @@ fu! s:prompt.update()
   redraw
   echo self.value
 
-  " let dir = "~/homebrew/spark"
-  " let dir = getcwd()
-  " let g:NERDTreeFZF = split(system('find ' . dir . ' -type f -not -path "*/node_modules/*" -a -not -path ".*" | fzf --filter="' . a:str . '"'), "\n")
-  " echo g:NERDTreeFZF
-  " call NERDTreeRender()
+  for l:UpdateFcn in self.updateFcns
+    call l:UpdateFcn()
+  endfo
 endf
+
+fu! s:prompt.addUpdateFunction(callback)
+  let self.updateFcns += [a:callback]
+endfu
 
 fu! s:prompt.return()
   redraw
