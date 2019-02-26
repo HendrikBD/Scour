@@ -1,51 +1,73 @@
-fu! InitPrompt()
-  call s:KeyLoop()
-endf
+let s:prompt = {}
+let g:ScourPrompt = s:prompt
 
-fu! s:KeyLoop()
-  let str = ""
-  let keyLoop_cnt = 0
-  let s:KeyInput=1
+function s:prompt.new()
+  let l:newPrompt = copy(self)
+  let l:newPrompt.value = ''
+  let l:newPrompt.keyInput = 0
 
-  wh s:KeyInput
-    let keyLoop_cnt += 1
+  return l:newPrompt
+endfu
 
-    let nr = getchar()
+fu! s:prompt.startKeyLoop()
+  echo self.value
+  wh self.keyInput
+
+    let l:nr = getchar()
+
     if nr == 13
-      call s:PromptReturn()
-      let s:KeyInput=0
-    elseif nr == 27
-      let s:KeyInput=0
+      call s:prompt.return()
+      call self.stop()
+    elseif nr == 27 || nr == 3
+      call self.stop()
     elseif nr == "\<BS>"
-      let str = strcharpart(str, 0, strlen(str)-1)
-      call s:PromptUpdate(str)
+      let self.value = strcharpart(self.value, 0, strlen(self.value)-1)
+      call self.update()
     el
-      let str = str . nr2char(nr)
-      call s:PromptUpdate(str)
+      let self.value = self.value . nr2char(l:nr)
+      call self.update()
     endif
+
   endw
 endf
 
-let g:NERDTreeFZF=[]
-
-fu! s:PromptUpdate(str)
-  redraw
-  echo a:str
-  let dir = "~/homebrew/spark"
-  " let dir = getcwd()
-  let g:NERDTreeFZF = split(system('find ' . dir . ' -type f -not -path "*/node_modules/*" -a -not -path ".*" | fzf --filter="' . a:str . '"'), "\n")
-  echo g:NERDTreeFZF
-  call NERDTreeRender()
+fu! s:prompt.start()
+  let self.keyInput=1
+  call self.startKeyLoop()
 endf
 
-fu! s:PromptReturn()
+fu! s:prompt.stop()
+  let self.keyInput=0
+endf
+
+fu! s:prompt.reset()
+  let self.value = ''
+  call self.update()
+endf
+
+fu! s:prompt.toggle()
+  let self.keyInput=!self.keyInput
+  if self.keyInput
+    call self.startKeyLoop()
+  endif
+endf
+
+fu! s:prompt.update()
+  redraw
+  echo self.value
+
+  " let dir = "~/homebrew/spark"
+  " let dir = getcwd()
+  " let g:NERDTreeFZF = split(system('find ' . dir . ' -type f -not -path "*/node_modules/*" -a -not -path ".*" | fzf --filter="' . a:str . '"'), "\n")
+  " echo g:NERDTreeFZF
+  " call NERDTreeRender()
+endf
+
+fu! s:prompt.return()
   redraw
   echo "Enter and stuff"
 endf
 
-
-fu! s:ToggleKeyLoop()
-endf
 
 fu! s:FilterDirectory(term, dir)
   let g:NERDTreeFZF = split(system('find ' . a:dir . ' -type f -not -path "*/node_modules/*" -a -not -path "*/.*" | fzf --filter="' . a:term . '"'), "\n")
