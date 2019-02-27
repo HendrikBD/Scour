@@ -50,3 +50,13 @@ function g:Window.openWindow()
   vertical resize 40
   call s:setBufOptions()
 endfu
+
+function g:Window.open()
+  vert topleft vnew
+  vertical resize 40
+  call s:setBufOptions()
+endfu
+
+function g:Window.clear()
+  1,$delete
+endfu

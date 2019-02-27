@@ -19,10 +19,15 @@ fu! s:prompt.startKeyLoop()
     if nr == 13
       call s:prompt.return()
       call self.stop()
+      let self.value = ""
     elseif nr == 27 || nr == 3
       call self.stop()
     elseif nr == "\<BS>"
-      let self.value = strcharpart(self.value, 0, strlen(self.value)-1)
+      if len(self.value) > 0
+        let self.value = strcharpart(self.value, 0, strlen(self.value)-1)
+      el
+        let self.value = ''
+      endif
       call self.update()
     el
       let self.value = self.value . nr2char(l:nr)
@@ -54,12 +59,12 @@ fu! s:prompt.toggle()
 endf
 
 fu! s:prompt.update()
-  redraw
-  echo self.value
-
   for l:UpdateFcn in self.updateFcns
     call l:UpdateFcn()
   endfo
+
+  redraw
+  echo self.value
 endf
 
 fu! s:prompt.addUpdateFunction(callback)
@@ -90,7 +95,5 @@ fu! FZFCheck(params)
   return fileIgnore
 endf
 
-
-call NERDTreeAddPathFilter('FZFCheck')
-" call s:KeyLoop()
-call InitPrompt()
+" let g:prompt1 = s:prompt.new()
+" call s:prompt1.start()
