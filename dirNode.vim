@@ -1,6 +1,7 @@
-let g:ScourDirNode={}
+let s:dirNode = {}
+let g:ScourDirNode = s:dirNode
 
-function g:ScourDirNode.new(path)
+function s:dirNode.new(path)
   let l:newScourDirNode = copy(self)
   let l:newScourDirNode.path = a:path
   let l:newScourDirNode.displayStr = split(a:path, '/')[-1] . '/'
@@ -11,11 +12,7 @@ function g:ScourDirNode.new(path)
 
 endfu
 
-function g:ScourDirNode.getPath()
-  return self.path
-endfu
-
-function g:ScourDirNode.loadChildren()
+function s:dirNode.loadChildren()
   let l:childPaths = split(globpath(self.path, '*'), '\n')
 
   let self.childNodes = {}
@@ -30,14 +27,18 @@ function g:ScourDirNode.loadChildren()
 endf
 
 
-fu g:ScourDirNode.getPaths()
+function s:dirNode.getPath()
+  return self.path
+endfu
+
+fu s:dirNode.getPaths()
   let l:paths = [self.path]
   let l:paths += self.getNestedPaths()
 
   return l:paths
 endfu
 
-fu g:ScourDirNode.getNestedPaths()
+fu s:dirNode.getNestedPaths()
   let l:paths = []
 
   for i in items(self.childNodes)
@@ -47,35 +48,29 @@ fu g:ScourDirNode.getNestedPaths()
   return l:paths
 endfu
 
-function g:ScourDirNode.drawSelected(paths)
-  let l:paths = []
-  for l:path in a:paths
-    let l:paths += split(l:path, self.root.path)
-  endfo
-endf
-
-function g:ScourDirNode.draw(indentLvl)
-  let l:indent = g:ScourHelper.getIndent(a:indentLvl)
-  cal append(0, l:indent . self.displayStr)
-endf
-
-function g:ScourDirNode.drawChildNodes(indentLvl, lineIndex)
-  let l:lineIndex = a:lineIndex
-
-  for l:childNode in items(self.childNodes)
-    let l:lineIndex = l:childNode[1].draw(a:indentLvl, l:lineIndex)
-  endfo
-
-  return l:lineIndex
+fu s:dirNode.getDisplayString()
+  if self == g:Scour.root
+    return self.displayStr
+  el
+    let l:indent = g:ScourHelper.getIndent(len(split(split(self.path, g:Scour.root.path)[0], '/')))
+    return l:indent . self.displayStr
+  endif
 endfu
 
+" function s:dirNode.drawSelected(paths)
+"   let l:paths = []
+"   for l:path in a:paths
+"     let l:paths += split(l:path, self.root.path)
+"   endfo
+" endf
 
-fu g:ScourDirNode.updateFilterTree(pathArr, filterTree)
+
+fu s:dirNode.updateFilterTree(pathArr, filterTree)
   let l:filterTree = a:filterTree
   " echo a:pathArr
 
-  if !has_key(l:filterTree, 'node')
-    let l:filterTree.node = self
+  if len(items(filterTree)) > 0
+    let l:filterTree = self
   endif
 
   if !has_key(l:filterTree, 'childNodes') && len(a:pathArr) > 0
@@ -91,5 +86,22 @@ fu g:ScourDirNode.updateFilterTree(pathArr, filterTree)
   endif
 
   return l:filterTree
+endfu
 
+fu s:dirNode.getNodeFromPath(path)
+  if a:path == self.path
+    return self
+  el
+    let l:childPath = split(split(a:path, self.path)[0], '/')[0]
+    if has_key(self.childNodes, l:childPath)
+      if isdirectory(self.path . '/' . l:childPath)
+        return self.childNodes[split(l:childPath, self.path)[0]].getNodeFromPath(a:path)
+      el
+        return self.childNodes[split(l:childPath, self.path)[0]]
+      endif
+    el
+      echoerr "Error: No node found with path: " . split(l:childPath, self.path)[0]
+    endif
+
+  endif
 endfu
