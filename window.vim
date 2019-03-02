@@ -1,13 +1,14 @@
-let g:Window={}
+let s:window={}
+let g:ScourWindow=s:window
 
-function g:Window.new()
-  let l:Window = copy(self)
+function s:window.new()
+  let l:newWindow = copy(self)
   
-  return l:Window
+  return l:newWindow
 endfu
 
 " FUNCTION: s:Creator._setCommonBufOptions() {{{1
-function! s:setBufOptions()
+function! s:window.setBufOptions()
 
     " Options for a non-file/control buffer.
     setlocal bufhidden=hide
@@ -41,22 +42,33 @@ function! s:setBufOptions()
     " call self._setupStatusline()
     " call self._bindMappings()
 
-    " setlocal filetype=nerdtree
+    setlocal filetype=scour
 endfunction
 
-
-function g:Window.openWindow()
-  vert topleft vnew
-  vertical resize 40
-  call s:setBufOptions()
+function s:window.open()
+  if &ft != 'scour'
+    vert topleft vnew
+    vertical resize 40
+    call self.setBufOptions()
+  endif
 endfu
 
-function g:Window.open()
-  vert topleft vnew
-  vertical resize 40
-  call s:setBufOptions()
+function s:window.close()
+  if &ft == 'scour'
+    close
+  endif
 endfu
 
-function g:Window.clear()
-  1,$delete
+function s:window.toggle()
+  if &ft == 'scour'
+    close
+  el
+    cal self.open()
+  endif
+endfu
+
+function s:window.clear()
+  if &ft == 'scour'
+    1,$delete
+  endif
 endfu
