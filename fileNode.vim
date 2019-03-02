@@ -1,6 +1,7 @@
-let g:ScourFileNode={}
+let s:scourFileNode = {}
+let g:ScourFileNode = s:scourFileNode
 
-function g:ScourFileNode.new(path)
+function s:scourFileNode.new(path)
   let l:newScourFileNode = copy(self)
   let l:newScourFileNode.path = a:path
   let l:newScourFileNode.displayStr = split(a:path, '/')[-1]
@@ -8,30 +9,35 @@ function g:ScourFileNode.new(path)
   return l:newScourFileNode
 endfu
 
-function! g:ScourFileNode.getPath()
+function! s:scourFileNode.getPath()
   return self.path
 endfu
 
-function! g:ScourFileNode.getPaths()
+function! s:scourFileNode.getPaths()
   return [self.path]
 endfu
 
-function g:ScourFileNode.renderToString(indLevel)
+function s:scourFileNode.renderToString(indLevel)
   let l:str = self.path . '\n'
   return l:str
 endfu
 
-function g:ScourFileNode.draw(indentLvl)
+function s:scourFileNode.draw(indentLvl)
   let l:indent = g:ScourHelper.getIndent(a:indentLvl)
-  cal append(0, l:indent . self.displayStr)
+  cal append(51, l:indent . self.displayStr)
 endfu
 
-fu g:ScourFileNode.updateFilterTree(pathArr, filterTree)
+fu s:scourFileNode.updateFilterTree(pathArr, filterTree)
   let l:filterTree = a:filterTree
 
-  if !has_key(l:filterTree, 'node')
-    let l:filterTree.node = self
+  if len(items(filterTree)) > 0
+    let l:filterTree = self
   endif
 
   return l:filterTree
+endfu
+
+fu s:scourFileNode.getDisplayString()
+    let l:indent = g:ScourHelper.getIndent(len(split(split(self.path, g:Scour.root.path)[0], '/')))
+    return l:indent . self.displayStr
 endfu
