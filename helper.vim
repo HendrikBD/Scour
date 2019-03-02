@@ -1,6 +1,8 @@
-let g:ScourHelper={}
 
-fu g:ScourHelper.getIndent(indentLvl)
+let s:helper = {}
+let g:ScourHelper=s:helper
+
+fu s:helper.getIndent(indentLvl)
   let l:indent = ''
   let l:i = 0
   while l:i < a:indentLvl
