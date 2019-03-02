@@ -1,30 +1,27 @@
-so ./fileNode.vim
-so ./dirNode.vim
-so ./helper.vim
-so ./prompt.vim
-so ./filter.vim
-so ./window.vim
+so  /home/bhd-windows/.vim/homebrew/scour/fileNode.vim
+so  /home/bhd-windows/.vim/homebrew/scour/dirNode.vim
+so  /home/bhd-windows/.vim/homebrew/scour/helper.vim
+so  /home/bhd-windows/.vim/homebrew/scour/prompt.vim
+so  /home/bhd-windows/.vim/homebrew/scour/filter.vim
+so  /home/bhd-windows/.vim/homebrew/scour/window.vim
+so  /home/bhd-windows/.vim/homebrew/scour/menu.vim
 
-let g:Scour={}
+let s:scour={}
 
-function g:Scour.new(path)
+function s:scour.new(path)
   let l:newScour = copy(self)
   let l:newScour.root = g:ScourDirNode.new(a:path)
   let l:newScour.prompt = g:ScourPrompt.new()
   let l:newScour.filter = g:ScourFilter.new()
+  let l:newScour.window = g:ScourWindow.new()
+  let l:newScour.menu = g:ScourMenu.new()
 
-  " let l:newScour.prompt = g:ScourPrompt.new()
-  " echo l:newScour.root.getPaths()
-  " call l:newScour.prompt.addUpdateFunction(l:newScour.test)
-  
+  cal l:newScour.setMode('dir')
+
   return l:newScour
 endfu
 
-function g:Scour.test()
-  echo 'test'
-endfu
-
-function g:Scour.drawAllChildNodes(indentLvl, lineIndex)
+function s:scour.drawAllChildNodes(indentLvl, lineIndex)
   let l:lineIndex = a:lineIndex
   let l:displayStr = ''
 
@@ -41,14 +38,14 @@ function g:Scour.drawAllChildNodes(indentLvl, lineIndex)
   call self.root.drawChildNodes(a:indentLvl + 1, l:lineIndex)
 endfu
 
-fu g:Scour.drawHeader(lineIndex)
+fu s:scour.drawHeader(lineIndex)
   let l:lineIndex = a:lineIndex
 
   return l:lineIndex
 endfu
 
-function g:Scour.displayCWD()
-  let self.window = g:Window.new()
+function s:scour.displayCWD()
+  let self.window = g:ScourWindow.new()
   call self.window.openWindow()
 
   let l:lineIndex = 1
@@ -57,34 +54,28 @@ function g:Scour.displayCWD()
   call self.drawAllChildNodes(2, l:lineIndex)
 endf
 
-fu g:Scour.filterCWD()
+fu s:scour.filterCWD()
   cal self.filter.setInputArr(g:scour.root.getPaths())
-  cal self.openWindow()
+  cal self.window.open()
+  " cal self.openWindow()
 
   call self.prompt.addUpdateFunction(self.window.clear)
   call self.prompt.addUpdateFunction(self.updateFromFilter)
 endfu
 
-fu g:Scour.updateFromFilter()
+fu s:scour.updateFromFilter()
   let l:filterArr = self.filter.update(self.prompt.value)
-  if len(l:filterArr) >0
+  if len(l:filterArr) > 0
     cal self.displayFromArray(self.filter.update(self.prompt.value))
+    cal cursor(1,1)
   endif
 endfu
 
-fu g:Scour.echoFilter()
+fu s:scour.echoFilter()
   echo g:scour.filter.update(self.prompt.value)
 endfu
 
-fu g:Scour.openWindow()
-  let self.window = g:Window.new()
-  call self.window.openWindow()
-endfu
-
-fu g:Scour.displayFromArray(filteredPaths)
-  " let self.window = g:Window.new()
-  " call self.window.openWindow()
-
+fu s:scour.displayFromArray(filteredPaths)
   " Building a temporary filter object that can be used to draw a filtered
   " directory tree
   let self.filterTree = {}
@@ -102,7 +93,7 @@ fu g:Scour.displayFromArray(filteredPaths)
   call self.drawTree(self.filterTree.root, 0)
 endfu
 
-fu g:Scour.drawTree(tree, indentLvl)
+fu s:scour.drawTree(tree, indentLvl)
 
   if has_key(a:tree, 'childNodes')
     for l:child in items(a:tree.childNodes)
@@ -113,8 +104,23 @@ fu g:Scour.drawTree(tree, indentLvl)
   call a:tree.node.draw(a:indentLvl)
 endfu
 
+fu s:scour.refresh()
+endfu
 
-let g:scour = g:Scour.new(getcwd())
-call g:scour.filterCWD()
+fu s:scour.addRefreshFunction(func)
+  if has_key(self, refreshFunctions)
+    let self.refreshFunctions = []
+  endif
+  let self.refreshFunctions += [func]
+endfu
 
-nnoremap <leader>/ :call g:scour.prompt.toggle()<CR>
+fu s:scour.setMode(mode)
+  let self.mode = 'dir'
+endfu
+
+
+let g:Scour = s:scour.new(getcwd())
+cal g:Scour.menu.buildFromArray(g:Scour.root.getPaths())
+
+nnoremap <leader>/ :call g:Scour.window.toggle()<CR>
+" nnoremap <leader>/ :call g:scour.prompt.toggle()<CR>
