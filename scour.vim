@@ -5,21 +5,23 @@ so  /home/bhd-windows/.vim/homebrew/scour/prompt.vim
 so  /home/bhd-windows/.vim/homebrew/scour/filter.vim
 so  /home/bhd-windows/.vim/homebrew/scour/window.vim
 so  /home/bhd-windows/.vim/homebrew/scour/menu.vim
+so  /home/bhd-windows/.vim/homebrew/scour/keymap.vim
 
 let s:scour={}
 
 function s:scour.new(path)
   let l:newScour = copy(self)
   let l:newScour.root = g:ScourDirNode.new(a:path)
-  let l:newScour.prompt = g:ScourPrompt.new()
   let l:newScour.filter = g:ScourFilter.new()
   let l:newScour.window = g:ScourWindow.new()
-  let l:newScour.menu = g:ScourMenu.new()
+  let l:newScour.menu = g:ScourMenu.new(l:newScour)
 
   cal l:newScour.setMode('dir')
+  cal l:newScour.menu.buildFromArray(l:newScour.root.getPaths(), l:newScour.root)
 
   return l:newScour
 endfu
+
 
 function s:scour.drawAllChildNodes(indentLvl, lineIndex)
   let l:lineIndex = a:lineIndex
@@ -45,7 +47,6 @@ fu s:scour.drawHeader(lineIndex)
 endfu
 
 function s:scour.displayCWD()
-  let self.window = g:ScourWindow.new()
   call self.window.openWindow()
 
   let l:lineIndex = 1
@@ -104,23 +105,53 @@ fu s:scour.drawTree(tree, indentLvl)
   call a:tree.node.draw(a:indentLvl)
 endfu
 
-fu s:scour.refresh()
+fu s:scour.test()
+  echo 'test'
 endfu
 
 fu s:scour.addRefreshFunction(func)
   if has_key(self, refreshFunctions)
     let self.refreshFunctions = []
   endif
-  let self.refreshFunctions += [func]
+  let self.refreshFunctions += [a:func]
 endfu
 
 fu s:scour.setMode(mode)
   let self.mode = 'dir'
 endfu
 
+fu s:scour.refresh()
+endfu
+
+fu! s:scour.open()
+  if !(&ft == 'scour')
+    let self.menu.prevWindow = win_getid()
+    cal self.window.open()
+    cal self.menu.open()
+  endif
+endfu
+
+fu s:scour.close()
+  if &ft == 'scour'
+    cal self.window.close()
+  endif
+endfu
+
+fu s:scour.toggle()
+  if &ft == 'scour'
+    cal self.close()
+  el
+    cal self.open()
+  endif
+endfu
+
+fu s:scour.reset()
+  cal l:newScour.menu.buildFromArray(l:newScour.root.getPaths(), l:newScour.root)
+  cal self.window.open()
+  cal self.menu.draw()
+endfu
+
 
 let g:Scour = s:scour.new(getcwd())
-cal g:Scour.menu.buildFromArray(g:Scour.root.getPaths())
 
-nnoremap <leader>/ :call g:Scour.window.toggle()<CR>
-" nnoremap <leader>/ :call g:scour.prompt.toggle()<CR>
+nnoremap <leader>/ :cal g:Scour.open()<CR>
