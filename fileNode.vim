@@ -5,6 +5,8 @@ function s:scourFileNode.new(path)
   let l:newScourFileNode = copy(self)
   let l:newScourFileNode.path = a:path
   let l:newScourFileNode.displayStr = split(a:path, '/')[-1]
+
+  let l:newScourFileNode.isDir = 0
   
   return l:newScourFileNode
 endfu
@@ -14,6 +16,10 @@ function! s:scourFileNode.getPath()
 endfu
 
 function! s:scourFileNode.getPaths()
+  return [self.path]
+endfu
+
+function! s:scourFileNode.getOpenPaths()
   return [self.path]
 endfu
 

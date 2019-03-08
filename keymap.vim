@@ -4,7 +4,7 @@ let g:ScourKeyMap = s:keyMap
 fu! s:keyMap.new(scour)
   let l:newKeyMap = copy(self)
   let l:newKeyMap.scour = a:scour
-  cal l:newKeyMap.setKeyMap(l:newKeyMap.getDefaultDirMap())
+  " cal l:newKeyMap.setKeyMap(l:newKeyMap.getDefaultDirMap())
 
   return l:newKeyMap
 endfu
@@ -13,6 +13,11 @@ fu! s:keyMap.getDefaultDirMap()
   " let l:map = {'13': g:Scour.menu.select, '27': g:Scour.close}
 endfu
 
-fu! s:keyMap.setKeyMap(map)
-  let self.map = a:map
+" fu! s:keyMap.setKeyMap(map)
+"   let self.map = a:map
+" endfu
+
+fu! s:keyMap.setKeyMap()
+  nnoremap <buffer> <CR> :cal g:Scour.menu.select()<CR>
+  nnoremap <buffer> <Esc> :cal g:Scour.close()<CR>
 endfu

@@ -12,12 +12,14 @@ let s:scour={}
 function s:scour.new(path)
   let l:newScour = copy(self)
   let l:newScour.root = g:ScourDirNode.new(a:path)
+  let l:newScour.root.isOpen = 1
+
   let l:newScour.filter = g:ScourFilter.new()
   let l:newScour.window = g:ScourWindow.new()
   let l:newScour.menu = g:ScourMenu.new(l:newScour)
 
   cal l:newScour.setMode('dir')
-  cal l:newScour.menu.buildFromArray(l:newScour.root.getPaths(), l:newScour.root)
+  cal l:newScour.menu.buildFromArray(l:newScour.root.getOpenPaths(), l:newScour.root)
 
   return l:newScour
 endfu
@@ -128,6 +130,7 @@ fu! s:scour.open()
     let self.menu.prevWindow = win_getid()
     cal self.window.open()
     cal self.menu.open()
+    cal cursor(2, 1)
   endif
 endfu
 

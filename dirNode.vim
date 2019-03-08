@@ -6,6 +6,9 @@ function s:dirNode.new(path)
   let l:newScourDirNode.path = a:path
   let l:newScourDirNode.displayStr = split(a:path, '/')[-1] . '/'
 
+  let l:newScourDirNode.isOpen = 0
+  let l:newScourDirNode.isDir = 1
+
   cal l:newScourDirNode.loadChildren()
   
   return l:newScourDirNode
@@ -31,9 +34,28 @@ function s:dirNode.getPath()
   return self.path
 endfu
 
-fu s:dirNode.getPaths()
+" fu s:dirNode.getPaths()
+"   let l:paths = [self.path]
+"   let l:paths += self.getNestedPaths()
+"
+"   return l:paths
+" endfu
+"
+" fu s:dirNode.getNestedPaths()
+"   let l:paths = []
+"
+"   for i in items(self.childNodes)
+"     let l:paths += i[1].getPaths()
+"   endfo
+"
+"   return l:paths
+" endfu
+
+fu s:dirNode.getOpenPaths()
   let l:paths = [self.path]
-  let l:paths += self.getNestedPaths()
+  if self.isOpen
+    let l:paths += self.getNestedPaths()
+  endif
 
   return l:paths
 endfu
@@ -42,7 +64,7 @@ fu s:dirNode.getNestedPaths()
   let l:paths = []
 
   for i in items(self.childNodes)
-    let l:paths += i[1].getPaths()
+    let l:paths += i[1].getOpenPaths()
   endfo
 
   return l:paths
@@ -67,7 +89,6 @@ endfu
 
 fu s:dirNode.updateFilterTree(pathArr, filterTree)
   let l:filterTree = a:filterTree
-  " echo a:pathArr
 
   if len(items(filterTree)) > 0
     let l:filterTree = self
