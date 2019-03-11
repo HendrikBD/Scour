@@ -11,25 +11,27 @@ function s:prompt.new()
 endfu
 
 fu! s:prompt.startKeyLoop()
+  redraw!
   echo self.value
+
   wh self.keyInput
 
-    let l:nr = getchar()
+    let l:nr = getchar(0)
 
-    if nr == 13
+    if l:nr == 13
       call s:prompt.return()
       call self.stop()
       let self.value = ""
-    elseif nr == 27 || nr == 3
+    elseif l:nr == 27 || nr == 3
       call self.stop()
-    elseif nr == "\<BS>"
+    elseif l:nr is# "\<BS>"
       if len(self.value) > 0
         let self.value = strcharpart(self.value, 0, strlen(self.value)-1)
       el
         let self.value = ''
       endif
       call self.update()
-    el
+    elseif l:nr != 0
       let self.value = self.value . nr2char(l:nr)
       call self.update()
     endif
@@ -63,7 +65,7 @@ fu! s:prompt.update()
     call l:UpdateFcn()
   endfo
 
-  redraw
+  redraw!
   echo self.value
 endf
 
@@ -71,8 +73,12 @@ fu! s:prompt.addUpdateFunction(callback)
   let self.updateFcns += [a:callback]
 endfu
 
+fu! s:prompt.purgeUpdateFunction()
+  let self.updateFcns = []
+endfu
+
 fu! s:prompt.return()
-  redraw
+  redraw!
   echo "Enter and stuff"
 endf
 
