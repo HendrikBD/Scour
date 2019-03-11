@@ -15,11 +15,11 @@ function! s:scourFileNode.getPath()
   return self.path
 endfu
 
-function! s:scourFileNode.getPaths()
-  return [self.path]
-endfu
+" function! s:scourFileNode.getPaths(allPaths)
+"   return [self.path]
+" endfu
 
-function! s:scourFileNode.getOpenPaths()
+function! s:scourFileNode.getPaths(allPaths)
   return [self.path]
 endfu
 

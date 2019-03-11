@@ -24,23 +24,7 @@ function! s:window.setBufOptions()
     setlocal nospell
     setlocal nowrap
 
-    if g:NERDTreeShowLineNumbers
-      setlocal nu
-    else
-        setlocal nonu
-        if v:version >= 703
-            setlocal nornu
-        endif
-    endif
-
     iabc <buffer>
-
-    if g:NERDTreeHighlightCursorline
-        setlocal cursorline
-    endif
-
-    " call self._setupStatusline()
-    " call self._bindMappings()
 
     setlocal filetype=scour
 endfunction

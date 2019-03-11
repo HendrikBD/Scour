@@ -72,7 +72,7 @@ endfu
 fu! s:menu.toggleDir(index)
   let self.items[a:index].isOpen = !self.items[a:index].isOpen
   let l:lineBck = line('.')
-  cal self.buildFromArray(self.scour.root.getOpenPaths(), self.scour.root)
+  cal self.buildFromArray(self.scour.root.getPaths(0), self.scour.root)
   cal self.draw()
   cal cursor(l:lineBck, 1)
 endfu

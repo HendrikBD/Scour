@@ -14,12 +14,11 @@ function s:scour.new(path)
   let l:newScour.root = g:ScourDirNode.new(a:path)
   let l:newScour.root.isOpen = 1
 
-  let l:newScour.filter = g:ScourFilter.new()
   let l:newScour.window = g:ScourWindow.new()
   let l:newScour.menu = g:ScourMenu.new(l:newScour)
 
   cal l:newScour.setMode('dir')
-  cal l:newScour.menu.buildFromArray(l:newScour.root.getOpenPaths(), l:newScour.root)
+  cal l:newScour.menu.buildFromArray(l:newScour.root.getPaths(0), l:newScour.root)
 
   return l:newScour
 endfu

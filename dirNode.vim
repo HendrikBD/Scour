@@ -51,20 +51,20 @@ endfu
 "   return l:paths
 " endfu
 
-fu s:dirNode.getOpenPaths()
+fu s:dirNode.getPaths(allPaths)
   let l:paths = [self.path]
-  if self.isOpen
-    let l:paths += self.getNestedPaths()
+  if self.isOpen || a:allPaths
+    let l:paths += self.getNestedPaths(a:allPaths)
   endif
 
   return l:paths
 endfu
 
-fu s:dirNode.getNestedPaths()
+fu s:dirNode.getNestedPaths(allPaths)
   let l:paths = []
 
   for i in items(self.childNodes)
-    let l:paths += i[1].getOpenPaths()
+    let l:paths += i[1].getPaths(a:allPaths)
   endfo
 
   return l:paths
