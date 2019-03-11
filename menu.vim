@@ -6,6 +6,8 @@ function s:menu.new(scour)
   let l:newMenu = copy(self)
   let l:newMenu.items = []
   let l:newMenu.scour = a:scour
+  let l:newMenu.filter = g:ScourFilter.new()
+
   let l:newMenu.keymap = g:ScourKeyMap.new(a:scour)
   let l:newMenu.prompt = g:ScourPrompt.new()
   
@@ -13,7 +15,6 @@ function s:menu.new(scour)
 endfu
 
 fu s:menu.buildFromArray(pathArr, root)
-
   let l:pathArr = sort(a:pathArr)
   let self.items = []
   let self.lineMap = {}
@@ -48,6 +49,16 @@ fu s:menu.draw()
   endif
 endfu
 
+fu! s:menu.filterCWD()
+  cal self.filter.setInputArr(self.scour.root.getPaths(1))
+
+  cal self.prompt.purgeUpdateFunction()
+  cal self.prompt.addUpdateFunction(self.scour.window.clear)
+  cal self.prompt.addUpdateFunction(self.updateFromFilter)
+
+  cal self.prompt.start()
+endfu
+
 " fu s:scour.update()
 " endfu
 
@@ -61,6 +72,7 @@ endfu
 
 fu! s:menu.select()
   let self.selection = line('.') - 2 " 1 comes from offset TODO: change to variable (dependent on header)
+
   if self.items[self.selection].isDir
     cal self.toggleDir(self.selection)
   el
@@ -89,6 +101,19 @@ fu! s:menu.cursorDown()
   endif
 endfu
 
+fu! s:menu.filter()
+  " cal self.prompt.startKeyLoop()
+endfu
+
+fu s:menu.updateFromFilter()
+  let l:filterArr = self.filter.update(self.prompt.value)
+  if len(l:filterArr) > 0
+    cal self.buildFromArray(self.filter.update(self.prompt.value), self.scour.root)
+    cal self.draw()
+    " cal self.displayFromArray(self.filter.update(self.prompt.value))
+    cal cursor(1,1)
+  endif
+endfu
 
 
 

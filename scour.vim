@@ -57,12 +57,15 @@ function s:scour.displayCWD()
 endf
 
 fu s:scour.filterCWD()
-  cal self.filter.setInputArr(g:scour.root.getPaths())
-  cal self.window.open()
-  " cal self.openWindow()
+  cal self.open()
+  cal self.menu.filterCWD()
 
-  call self.prompt.addUpdateFunction(self.window.clear)
-  call self.prompt.addUpdateFunction(self.updateFromFilter)
+  " cal self.menu.filterCWD()
+  " cal self.filter.setInputArr(self.root.getPaths(1))
+  " echo self.menu.inputList
+
+  " cal self.menu.prompt.addUpdateFunction(self.window.clear)
+  " cal self.prompt.addUpdateFunction(self.updateFromFilter)
 endfu
 
 fu s:scour.updateFromFilter()
@@ -153,7 +156,15 @@ fu s:scour.reset()
   cal self.menu.draw()
 endfu
 
+fu s:scour.filter()
+  if !(&ft == 'scour')
+    cal self.open()
+  endif
+  cal self.menu.filter()
+endfu
+
 
 let g:Scour = s:scour.new(getcwd())
 
-nnoremap <leader>/ :cal g:Scour.open()<CR>
+nnoremap <leader>/ :cal g:Scour.filterCWD()<CR>
+nnoremap <leader>d :cal g:Scour.toggle()<CR>
