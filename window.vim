@@ -3,6 +3,9 @@ let g:ScourWindow=s:window
 
 function s:window.new()
   let l:newWindow = copy(self)
+  let l:dirOpen = 0
+  let l:dirMenuOpen = 0
+  let l:trayOpen = 0
   
   return l:newWindow
 endfu
@@ -26,15 +29,21 @@ function! s:window.setBufOptions()
 
     iabc <buffer>
 
-    setlocal filetype=scour
 endfunction
 
-function s:window.open()
-  if &ft != 'scour'
-    vert topleft vnew
-    vertical resize 40
-    call self.setBufOptions()
-  endif
+function s:window.open(type)
+  vert topleft vnew
+  vertical resize 40
+  call self.setBufOptions()
+  setlocal filetype=scour
+  " if !self.isWindowType('scour')
+  "   if a:type == 'dir' && !self.isWindowType(a:type)
+  "     vert topleft vnew
+  "     vertical resize 40
+  "     call self.setBufOptions()
+  "     setlocal filetype=scour.dir
+  "   endif
+  " endif
 endfu
 
 function s:window.close()
@@ -56,3 +65,11 @@ function s:window.clear()
     1,$delete
   endif
 endfu
+
+function s:window.isWindowType(type)
+  let l:fileTypes = split(&ft, '\.')
+  return index(l:fileTypes, a:type) > -1
+endfu
+
+" let s:Window = g:ScourWindow.new()
+" cal s:Window.open('dir')

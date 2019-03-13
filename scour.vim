@@ -130,7 +130,7 @@ endfu
 fu! s:scour.open()
   if !(&ft == 'scour')
     let self.menu.prevWindow = win_getid()
-    cal self.window.open()
+    cal self.window.open('dir')
     cal self.menu.open()
     cal cursor(2, 1)
   endif

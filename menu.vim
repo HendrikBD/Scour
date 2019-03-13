@@ -26,11 +26,20 @@ fu s:menu.buildFromArray(pathArr, root)
 
 endfu
 
+fu! s:menu.buildFromFilter()
+  let l:pathArr = sort(self.scour.root.getPaths(1))
+  let self.items = []
+
+  for l:path in l:pathArr
+    let l:node = self.scour.root.getNodeFromPath(l:path)
+    let self.items += [l:node]
+  endfo
+endfu
+
 fu s:menu.open()
   cal self.draw()
   cal self.keymap.setKeyMap()
   let self.scourWindow = win_getid()
-  " cal self.watchKeys()
 endfu
 
 fu s:menu.draw()
