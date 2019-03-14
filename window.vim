@@ -85,6 +85,27 @@ fu! s:window.openMode(mode)
   endif
 endfu
 
+fu! s:window.openShelf()
+  vert topleft vnew
+  vertical resize 40
+  cal s:Window.setBufOptions()
+  setlocal filetype=ScourShelf
+endfu
+
+fu! s:window.openDrawer()
+  new
+  resize 15
+  cal s:Window.setBufOptions()
+  setlocal filetype=ScourDrawer
+endfu
+
+fu! s:window.openTray()
+  botright new
+  resize 20
+  cal s:Window.setBufOptions()
+  setlocal filetype=ScourTray
+endfu
+
 fu! s:window.closeWindow(window)
   if self.windows[a:window].isOpen
     let l:prevWindow = winnr()
@@ -97,7 +118,7 @@ endfu
 " Sets window to default
 "
 fu! s:window.resetWindows()
-  let self.windows = {'ScourDir': {'isOpen': 0}, 'ScourSelection': {'isOpen': 0}, 'ScourTray': {'isOpen': 0}}
+  let self.windows = {'ScourShelf': {'isOpen': 0}, 'ScourDrawer': {'isOpen': 0}, 'ScourTray': {'isOpen': 0}}
 endfu
 
 " Gets all scour windows currently open
@@ -114,7 +135,7 @@ fu! s:window.updateWindows()
 
     let l:i += 1
     let l:winType = &ft
-    if l:winType == 'ScourDir' || l:winType == 'ScourSelection' || l:winType == 'ScourTray'
+    if l:winType == 'ScourShelf' || l:winType == 'ScourDrawer' || l:winType == 'ScourTray'
       let self.windows[l:winType] = {'isOpen': 1, 'id': l:winId}
     endif
   endw
