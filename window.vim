@@ -71,26 +71,52 @@ function s:window.isWindowType(type)
   return index(l:fileTypes, a:type) > -1
 endfu
 
+fu! s:window.openMode(mode)
+  cal self.updateWindows()
+
+  if a:mode == 'dir'
+    if self.windows.ScourTray.isOpen
+      cal self.closeWindow('ScourTray')
+    endif
+  elseif a:mode == 'selection'
+  elseif a:mode == 'tray'
+  el
+    echoerr 'Invalid mode sent'
+  endif
+endfu
+
+fu! s:window.closeWindow(window)
+  if self.windows[a:window].isOpen
+    let l:prevWindow = winnr()
+    cal win_gotoid(self.windows[a:window].id)
+    q
+    cal win_gotoid(l:prevWindow)
+  endif
+endfu
+
+" Sets window to default
+"
+fu! s:window.resetWindows()
+  let self.windows = {'ScourDir': {'isOpen': 0}, 'ScourSelection': {'isOpen': 0}, 'ScourTray': {'isOpen': 0}}
+endfu
+
 " Gets all scour windows currently open
 " loops through all windows and checks filetypes
 "
-fu! s:window.getOpenWindows()
+fu! s:window.updateWindows()
   let l:prevWindow = win_getid()
-  let l:openWindows = []
+  cal self.resetWindows()
 
   let l:i = 1
   wh l:i <= winnr('$')
     let l:winId = win_getid(l:i)
     cal win_gotoid(l:winId)
+
     let l:i += 1
     let l:winType = &ft
     if l:winType == 'ScourDir' || l:winType == 'ScourSelection' || l:winType == 'ScourTray'
-      let l:openWindows += [{'type': l:winType, 'id': l:winId}]
+      let self.windows[l:winType] = {'isOpen': 1, 'id': l:winId}
     endif
   endw
 
-  cal win_gotoid(l:prevWindow)
-  return l:openWindows
-
 endfu
-" cal s:Window.open('dir')
