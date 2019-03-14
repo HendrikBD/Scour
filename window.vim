@@ -71,5 +71,26 @@ function s:window.isWindowType(type)
   return index(l:fileTypes, a:type) > -1
 endfu
 
-" let s:Window = g:ScourWindow.new()
+" Gets all scour windows currently open
+" loops through all windows and checks filetypes
+"
+fu! s:window.getOpenWindows()
+  let l:prevWindow = win_getid()
+  let l:openWindows = []
+
+  let l:i = 1
+  wh l:i <= winnr('$')
+    let l:winId = win_getid(l:i)
+    cal win_gotoid(l:winId)
+    let l:i += 1
+    let l:winType = &ft
+    if l:winType == 'ScourDir' || l:winType == 'ScourSelection' || l:winType == 'ScourTray'
+      let l:openWindows += [{'type': l:winType, 'id': l:winId}]
+    endif
+  endw
+
+  cal win_gotoid(l:prevWindow)
+  return l:openWindows
+
+endfu
 " cal s:Window.open('dir')
