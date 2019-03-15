@@ -3,9 +3,7 @@ let g:ScourWindow=s:window
 
 function s:window.new()
   let l:newWindow = copy(self)
-  let l:dirOpen = 0
-  let l:dirMenuOpen = 0
-  let l:trayOpen = 0
+  cal l:newWindow.resetWindows()
   
   return l:newWindow
 endfu
@@ -71,39 +69,62 @@ function s:window.isWindowType(type)
   return index(l:fileTypes, a:type) > -1
 endfu
 
+" Open one of three potential modes:
+"   - dir (for directory navigation)
+"   - selection (directory with a smaller window for alt navigation)
+"   - tray (horizontally split window to display a lot of text, aka ag)
+"
 fu! s:window.openMode(mode)
   cal self.updateWindows()
 
   if a:mode == 'dir'
-    if self.windows.ScourTray.isOpen
-      cal self.closeWindow('ScourTray')
-    endif
+    cal self.closeAll()
+    cal self.openShelf()
   elseif a:mode == 'selection'
+    cal self.closeAll()
+    cal self.openShelf()
+    cal self.openDrawer()
   elseif a:mode == 'tray'
+    cal self.closeAll()
+    cal self.openTray()
   el
     echoerr 'Invalid mode sent'
   endif
+  redraw!
 endfu
 
 fu! s:window.openShelf()
-  vert topleft vnew
-  vertical resize 40
-  cal s:Window.setBufOptions()
-  setlocal filetype=ScourShelf
+  if !self.windows.ScourShelf.isOpen
+    vert topleft vnew
+    vertical resize 40
+    cal s:Window.setBufOptions()
+    setlocal filetype=ScourShelf
+  endif
 endfu
 
 fu! s:window.openDrawer()
-  new
-  resize 15
-  cal s:Window.setBufOptions()
-  setlocal filetype=ScourDrawer
+  if !self.windows.ScourDrawer.isOpen
+    new
+    resize 15
+    cal s:Window.setBufOptions()
+    setlocal filetype=ScourDrawer
+  endif
 endfu
 
 fu! s:window.openTray()
-  botright new
-  resize 20
-  cal s:Window.setBufOptions()
-  setlocal filetype=ScourTray
+  if !self.windows.ScourTray.isOpen
+    botright new
+    resize 20
+    cal s:Window.setBufOptions()
+    setlocal filetype=ScourTray
+  endif
+endfu
+
+fu! s:window.closeAll()
+  cal self.closeWindow('ScourTray')
+  cal self.closeWindow('ScourDrawer')
+  cal self.closeWindow('ScourShelf')
+  cal self.updateWindows()
 endfu
 
 fu! s:window.closeWindow(window)
