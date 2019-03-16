@@ -8,13 +8,13 @@ let g:ScourManager=s:scourManager
 fu! s:scourManager.new(scour)
   let l:newScour = copy(self)
   let l:newScour.scour = a:scour
-  cal l:newScour.initWindows()
+  cal l:newScour.initWindows(self)
 
   return l:newScour
 endfu
 
-fu! s:scourManager.initWindows()
-  let self.windows = {'ScourShelf': g:ScourShelf.new(self), 'ScourTray': g:ScourTray.new(self)}
+fu! s:scourManager.initWindows(manager)
+  let self.windows = {'ScourShelf': g:ScourShelf.new(a:manager), 'ScourTray': g:ScourTray.new(a:manager)}
 endfu
 
 fu! s:scourManager.resetWindows()
@@ -55,15 +55,13 @@ fu! s:scourManager.openMode(mode)
     cal self.closeAll()
     cal self.windows.ScourShelf.open()
   elseif a:mode == 'selection'
-    " cal self.closeAll()
-    " cal self.scour.shelf.open()
-    " cal self.scour.tray.open()
-    " cal self.openShelf()
-    " cal self.openTray()
+    cal self.closeAll()
+    cal self.windows.ScourTray.open()
+    cal self.windows.ScourShelf.open()
   el
     echoerr 'Invalid mode sent'
   endif
-  " redraw!
+  redraw!
 endfu
 
 " FUNCTION: s:Creator._setCommonBufOptions() {{{1
@@ -90,4 +88,4 @@ endfunction
 
 let s:Manager = s:scourManager.new('test')
 cal s:Manager.closeAll()
-cal s:Manager.openMode('dir')
+cal s:Manager.openMode('selection')

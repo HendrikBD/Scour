@@ -5,14 +5,15 @@ function s:scourTray.new(manager)
   let l:newTray = copy(self)
   let l:newTray.manager = a:manager
   let l:newTray.isOpen = 0
+  let l:newTray.winId = -1
   
   return l:newTray
 endfu
 
 fu! s:scourTray.open()
   botright new
-  resize 20
-  " cal s:Window.setBufOptions()
+  resize 15
+  cal self.manager.setBufOptions()
   setlocal filetype=ScourTray
 endfu
 
