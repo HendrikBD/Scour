@@ -13,7 +13,7 @@ endfu
 fu! s:scourTray.open()
   botright new
   resize 15
-  cal self.manager.setBufOptions()
+  cal self.manager.library.setBufOptions()
   setlocal filetype=ScourTray
 endfu
 

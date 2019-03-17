@@ -1,16 +1,18 @@
 so  /home/bhd-windows/.vim/homebrew/scour/shelf.vim
 so  /home/bhd-windows/.vim/homebrew/scour/tray.vim
+so  /home/bhd-windows/.vim/homebrew/scour/library.vim
 
 
 let s:scourManager={}
 let g:ScourManager=s:scourManager
 
 fu! s:scourManager.new(scour)
-  let l:newScour = copy(self)
-  let l:newScour.scour = a:scour
-  cal l:newScour.initWindows(self)
+  let l:newManager = copy(self)
+  let l:newManager.scour = a:scour
+  let l:newManager.library = g:ScourLibrary.new()
+  cal l:newManager.initWindows(l:newManager)
 
-  return l:newScour
+  return l:newManager
 endfu
 
 fu! s:scourManager.initWindows(manager)
@@ -63,27 +65,6 @@ fu! s:scourManager.openMode(mode)
   endif
   redraw!
 endfu
-
-" FUNCTION: s:Creator._setCommonBufOptions() {{{1
-function! s:scourManager.setBufOptions()
-
-    " Options for a non-file/control buffer.
-    setlocal bufhidden=hide
-    setlocal buftype=nofile
-    setlocal noswapfile
-
-    " Options for controlling buffer/window appearance.
-    setlocal foldcolumn=0
-    setlocal foldmethod=manual
-    setlocal nobuflisted
-    setlocal nofoldenable
-    setlocal nolist
-    setlocal nospell
-    setlocal nowrap
-
-    iabc <buffer>
-
-endfunction
 
 
 let s:Manager = s:scourManager.new('test')

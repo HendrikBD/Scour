@@ -13,7 +13,7 @@ endfu
 fu! s:scourShelf.open()
   vert topleft vnew
   vertical resize 40
-  cal self.manager.setBufOptions()
+  cal self.manager.library.setBufOptions()
   setlocal filetype=ScourShelf
 endfu
 
