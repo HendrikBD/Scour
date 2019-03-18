@@ -2,19 +2,46 @@
 let s:menu = {}
 let g:ScourMenu = s:menu
 
-function s:menu.new(scour)
+function s:menu.new(manager, dataSource)
   let l:newMenu = copy(self)
-  let l:newMenu.items = []
-  let l:newMenu.scour = a:scour
-  let l:newMenu.filter = g:ScourFilter.new()
+  let l:newMenu.manager = a:manager
+  let l:newMenu.header = []
+  cal l:newMenu.updateDataSource(a:dataSource)
 
-  let l:newMenu.keymap = g:ScourKeyMap.new(a:scour)
-  let l:newMenu.prompt = g:ScourPrompt.new()
-  
   return l:newMenu
 endfu
 
 fu s:menu.buildFromArray(pathArr, root)
+fu! s:menu.updateDataSource(dataSource)
+  if a:dataSource.type == 'tree'
+    let self.items = self.buildFromNode(a:dataSource.data)
+  elseif a:dataSource.type == 'list'
+    " echo a:dataSource.data
+    " cal self.buildFromList(a:dataSource.data)
+    " echo self.items
+  el
+    echoerr 'Invalid dataSource'
+  endif
+  " cal self.updateLineMap()
+endfu
+
+fu! s:menu.buildFromNode(node)
+  if a:node.isDir
+    let l:item = {'type': 'dirNode', 'node': a:node}
+  el
+    let l:item = {'type': 'fileNode', 'node': a:node}
+  endif
+
+  let l:items = [l:item]
+
+  if a:node.isDir && a:node.isOpen
+    for l:child in values(a:node.childNodes)
+      let l:items += self.buildFromNode(l:child)
+    endfo
+  endif
+
+  return l:items
+endfu
   let l:pathArr = sort(a:pathArr)
   let self.items = []
   let self.lineMap = {}
