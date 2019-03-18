@@ -70,18 +70,20 @@ fu s:menu.open()
 endfu
 
 fu s:menu.draw()
-  if &ft == 'scour'
+  if &ft == 'ScourShelf' || &ft == 'ScourTray'
     let self.displayArr = []
     let l:indent = ''
 
     for l:item in self.items
-      let l:displayStr = l:item.getDisplayString()
-      let l:indent = g:ScourHelper.getIndent(2)
-      let self.displayArr += [l:indent . l:item.getDisplayString()]
+      let l:displayStr = l:item.node.getDisplayString()
+      let l:indent = self.manager.library.getIndentFromPath(l:item.node.path)
+      let self.displayArr += [l:indent . l:item.node.getDisplayString()]
     endfo
 
     1,$delete
-    cal append(1, self.displayArr)
+    cal append(len(self.header), self.displayArr)
+    $delete
+    cal cursor(1, 1)
   endif
 endfu
 
