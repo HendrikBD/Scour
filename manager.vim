@@ -9,7 +9,6 @@ fu! s:scourManager.new(scour)
   let l:newManager.scour = a:scour
   let l:newManager.library = g:ScourLibrary.new(l:newManager)
 
-
   return l:newManager
 endfu
 
@@ -67,6 +66,26 @@ fu! s:scourManager.openMode(mode, options)
   endif
   cal self.updateWindows()
   redraw!
+endfu
+
+fu! s:scourManager.closeAllNodes(node)
+  if a:node.isDir
+    let a:node.isOpen = 0
+    for l:childNode in values(a:node.childNodes)
+        cal self.closeAllNodes(l:childNode)
+    endfo
+  endif
+endfu
+
+fu! s:scourManager.openAllNodes(node)
+
+  if a:node.isDir
+    let a:node.isOpen = 1
+    for l:childNode in values(a:node.childNodes)
+        cal self.openAllNodes(l:childNode)
+    endfo
+  endif
+
 endfu
 
 
