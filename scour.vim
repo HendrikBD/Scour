@@ -9,18 +9,53 @@ so  /home/bhd-windows/.vim/homebrew/scour/keymap.vim
 
 let s:scour={}
 
-function s:scour.new(path)
+function s:scour.new(root)
   let l:newScour = copy(self)
-  let l:newScour.root = g:ScourDirNode.new(a:path)
+  let l:newScour.manager = g:ScourManager.new(l:newScour)
+  cal l:newScour.manager.initWindows(l:newScour)
+
+  let l:newScour.root = g:ScourDirNode.new(a:root)
   let l:newScour.root.isOpen = 1
 
-  let l:newScour.window = g:ScourWindow.new()
-  let l:newScour.menu = g:ScourMenu.new(l:newScour)
-
-  cal l:newScour.setMode('dir')
-  cal l:newScour.menu.buildFromArray(l:newScour.root.getPaths(0), l:newScour.root)
-
   return l:newScour
+endfu
+
+
+function s:scour.openCWD()
+  cal self.manager.closeAllNodes(self.root)
+  " cal self.manager.openAllNodes(self.root)
+  let self.root.isOpen = 1
+  cal self.manager.openMode('dir', {})
+
+  " let l:dataSource = {'type': 'list', 'data': self.root.getPaths(0)}
+  let l:dataSource = {'type': 'tree', 'data': self.root}
+  let self.windows.ScourShelf.menu = g:ScourMenu.new(self.manager, l:dataSource)
+  cal self.windows.ScourShelf.draw()
+
+  " goto shelf menu
+  " draw menu
+  " jump to top item
+endf
+
+fu! s:scour.openAtFile()
+
+  let l:relPaths = split(expand('%'), '/')[0:-2]
+
+  if len(l:relPaths) == 0
+    return self.openCWD()
+  endif
+
+  let l:relDirPath = join([self.root.path, join(l:relPaths, '/')], '/')
+  let l:node = self.root.getNodeFromPath(l:relDirPath)
+  cal self.manager.closeAllNodes(l:node)
+  let l:node.isOpen = 1
+
+  cal self.manager.openMode('dir', {})
+
+  let l:dataSource = {'type': 'tree', 'data': l:node}
+  let self.windows.ScourShelf.menu = g:ScourMenu.new(self.manager, l:dataSource)
+  cal self.windows.ScourShelf.draw()
+
 endfu
 
 
