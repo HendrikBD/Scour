@@ -27,3 +27,10 @@ fu! s:scourShelf.close()
     endif
   endif
 endfu
+
+fu! s:scourShelf.draw()
+  if self.isOpen
+    cal win_gotoid(self.winId)
+    cal self.menu.draw()
+  endif
+endfu

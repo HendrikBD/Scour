@@ -6,6 +6,7 @@ function s:scourTray.new(manager)
   let l:newTray.manager = a:manager
   let l:newTray.isOpen = 0
   let l:newTray.winId = -1
+  " let l:newTray.menu = g:ScourMenu.new()
   
   return l:newTray
 endfu
