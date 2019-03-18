@@ -1,18 +1,20 @@
+" so  /home/bhd-windows/.vim/homebrew/scour/helper.vim
+" so  /home/bhd-windows/.vim/homebrew/scour/prompt.vim
+" so  /home/bhd-windows/.vim/homebrew/scour/filter.vim
+" so  /home/bhd-windows/.vim/homebrew/scour/keymap.vim
+
+so  /home/bhd-windows/.vim/homebrew/scour/manager.vim
+so  /home/bhd-windows/.vim/homebrew/scour/shelf.vim
+so  /home/bhd-windows/.vim/homebrew/scour/tray.vim
 so  /home/bhd-windows/.vim/homebrew/scour/fileNode.vim
 so  /home/bhd-windows/.vim/homebrew/scour/dirNode.vim
-so  /home/bhd-windows/.vim/homebrew/scour/helper.vim
-so  /home/bhd-windows/.vim/homebrew/scour/prompt.vim
-so  /home/bhd-windows/.vim/homebrew/scour/filter.vim
-so  /home/bhd-windows/.vim/homebrew/scour/window.vim
 so  /home/bhd-windows/.vim/homebrew/scour/menu.vim
-so  /home/bhd-windows/.vim/homebrew/scour/keymap.vim
 
 let s:scour={}
 
 function s:scour.new(root)
   let l:newScour = copy(self)
   let l:newScour.manager = g:ScourManager.new(l:newScour)
-  cal l:newScour.manager.initWindows(l:newScour)
 
   let l:newScour.root = g:ScourDirNode.new(a:root)
   let l:newScour.root.isOpen = 1
@@ -23,7 +25,6 @@ endfu
 
 function s:scour.openCWD()
   cal self.manager.closeAllNodes(self.root)
-  " cal self.manager.openAllNodes(self.root)
   let self.root.isOpen = 1
   cal self.manager.openMode('dir', {})
 
@@ -32,9 +33,6 @@ function s:scour.openCWD()
   let self.windows.ScourShelf.menu = g:ScourMenu.new(self.manager, l:dataSource)
   cal self.windows.ScourShelf.draw()
 
-  " goto shelf menu
-  " draw menu
-  " jump to top item
 endf
 
 fu! s:scour.openAtFile()
@@ -57,6 +55,20 @@ fu! s:scour.openAtFile()
   cal self.windows.ScourShelf.draw()
 
 endfu
+
+function s:scour.filterCWD()
+  cal self.manager.openAllNodes(self.root)
+  cal self.manager.openMode('selection', {})
+
+  let l:dataSource = {'type': 'list', 'data': self.root.getPaths(0)}
+  " echo l:dataSource
+  " let l:dataSource = {'type': 'tree', 'data': self.root}
+  let self.windows.ScourShelf.menu = g:ScourMenu.new(self.manager, l:dataSource)
+  cal self.windows.ScourShelf.draw()
+endf
+
+function s:scour.openBuffHistory()
+endf
 
 
 function s:scour.drawAllChildNodes(indentLvl, lineIndex)
@@ -91,17 +103,6 @@ function s:scour.displayCWD()
   call self.drawAllChildNodes(2, l:lineIndex)
 endf
 
-fu s:scour.filterCWD()
-  cal self.open()
-  cal self.menu.filterCWD()
-
-  " cal self.menu.filterCWD()
-  " cal self.filter.setInputArr(self.root.getPaths(1))
-  " echo self.menu.inputList
-
-  " cal self.menu.prompt.addUpdateFunction(self.window.clear)
-  " cal self.prompt.addUpdateFunction(self.updateFromFilter)
-endfu
 
 fu s:scour.updateFromFilter()
   let l:filterArr = self.filter.update(self.prompt.value)
@@ -201,5 +202,5 @@ endfu
 
 let g:Scour = s:scour.new(getcwd())
 
-nnoremap <leader>/ :cal g:Scour.filterCWD()<CR>
-nnoremap <leader>d :cal g:Scour.toggle()<CR>
+" nnoremap <leader>/ :cal g:Scour.filterCWD()<CR>
+" nnoremap <leader>d :cal g:Scour.toggle()<CR>

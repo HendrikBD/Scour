@@ -116,7 +116,7 @@ fu s:dirNode.getNodeFromPath(path)
     let l:childPath = split(split(a:path, self.path)[0], '/')[0]
     if has_key(self.childNodes, l:childPath)
       if isdirectory(self.path . '/' . l:childPath)
-        return self.childNodes[split(l:childPath, self.path)[0]].getNodeFromPath(a:path)
+        return self.childNodes[l:childPath].getNodeFromPath(a:path)
       el
         return self.childNodes[split(l:childPath, self.path)[0]]
       endif

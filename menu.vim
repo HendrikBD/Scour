@@ -16,9 +16,7 @@ fu! s:menu.updateDataSource(dataSource)
   if a:dataSource.type == 'tree'
     let self.items = self.buildFromNode(a:dataSource.data)
   elseif a:dataSource.type == 'list'
-    " echo a:dataSource.data
-    " cal self.buildFromList(a:dataSource.data)
-    " echo self.items
+    let self.items = self.buildFromList(a:dataSource.data)
   el
     echoerr 'Invalid dataSource'
   endif
@@ -42,15 +40,21 @@ fu! s:menu.buildFromNode(node)
 
   return l:items
 endfu
+
+fu s:menu.buildFromList(pathArr)
   let l:pathArr = sort(a:pathArr)
-  let self.items = []
-  let self.lineMap = {}
+  let l:items = []
 
   for l:path in l:pathArr
-    let l:node = a:root.getNodeFromPath(l:path)
-    let self.items += [l:node]
+    let l:node = self.manager.scour.root.getNodeFromPath(l:path)
+    if l:node.isDir
+      let l:items += [{'type': 'dirNode', 'node': l:node}]
+    el
+      let l:items += [{'type': 'fileNode', 'node': l:node}]
+    endif
   endfo
 
+  return l:items
 endfu
 
 fu! s:menu.buildFromFilter()

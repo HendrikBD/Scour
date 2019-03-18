@@ -8,12 +8,13 @@ fu! s:scourManager.new(scour)
   let l:newManager = copy(self)
   let l:newManager.scour = a:scour
   let l:newManager.library = g:ScourLibrary.new(l:newManager)
+  cal l:newManager.initWindows(l:newManager)
 
   return l:newManager
 endfu
 
 fu! s:scourManager.initWindows(manager)
-  let a:scour.windows = {'ScourShelf': g:ScourShelf.new(a:manager), 'ScourTray': g:ScourTray.new(a:manager)}
+  let a:manager.scour.windows = {'ScourShelf': g:ScourShelf.new(a:manager), 'ScourTray': g:ScourTray.new(a:manager)}
 endfu
 
 fu! s:scourManager.resetWindows()
@@ -59,8 +60,8 @@ fu! s:scourManager.openMode(mode, options)
     " Load keybinds in that window
   elseif a:mode == 'selection'
     cal self.closeAllWindows()
-    cal self.windows.ScourTray.open()
-    cal self.windows.ScourShelf.open()
+    cal self.scour.windows.ScourTray.open()
+    cal self.scour.windows.ScourShelf.open()
   el
     echoerr 'Invalid mode sent'
   endif
