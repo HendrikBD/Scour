@@ -1,5 +1,3 @@
-so  /home/bhd-windows/.vim/homebrew/scour/shelf.vim
-so  /home/bhd-windows/.vim/homebrew/scour/tray.vim
 so  /home/bhd-windows/.vim/homebrew/scour/library.vim
 
 
@@ -9,21 +7,21 @@ let g:ScourManager=s:scourManager
 fu! s:scourManager.new(scour)
   let l:newManager = copy(self)
   let l:newManager.scour = a:scour
-  let l:newManager.library = g:ScourLibrary.new()
-  cal l:newManager.initWindows(l:newManager)
+  let l:newManager.library = g:ScourLibrary.new(l:newManager)
+
 
   return l:newManager
 endfu
 
 fu! s:scourManager.initWindows(manager)
-  let self.windows = {'ScourShelf': g:ScourShelf.new(a:manager), 'ScourTray': g:ScourTray.new(a:manager)}
+  let a:scour.windows = {'ScourShelf': g:ScourShelf.new(a:manager), 'ScourTray': g:ScourTray.new(a:manager)}
 endfu
 
 fu! s:scourManager.resetWindows()
-  let self.windows.ScourShelf.isOpen = 0
-  let self.windows.ScourShelf.winId = -1
-  let self.windows.ScourTray.isOpen = 0
-  let self.windows.ScourTray.winId = -1
+  let self.scour.windows.ScourShelf.isOpen = 0
+  let self.scour.windows.ScourShelf.winId = -1
+  let self.scour.windows.ScourTray.isOpen = 0
+  let self.scour.windows.ScourTray.winId = -1
 endfu
 
 fu! s:scourManager.updateWindows()
@@ -37,36 +35,40 @@ fu! s:scourManager.updateWindows()
 
     let l:i += 1
     let l:winType = &ft
-    if l:winType == 'ScourShelf' || l:winType == 'ScourDrawer' || l:winType == 'ScourTray'
-      let self.windows[l:winType].isOpen = 1
-      let self.windows[l:winType].winId = l:winId
+    if l:winType == 'ScourShelf' || l:winType == 'ScourTray'
+      let self.scour.windows[l:winType].isOpen = 1
+      let self.scour.windows[l:winType].winId = l:winId
     endif
   endw
 endfu
 
-fu! s:scourManager.closeAll()
-  cal self.windows.ScourShelf.close()
-  cal self.windows.ScourTray.close()
+fu! s:scourManager.closeAllWindows()
+  cal self.updateWindows()
+  cal self.scour.windows.ScourShelf.close()
+  cal self.scour.windows.ScourTray.close()
 endfu
 
 
-fu! s:scourManager.openMode(mode)
-  let l:windows = self.updateWindows()
+fu! s:scourManager.openMode(mode, options)
+  cal self.updateWindows()
 
   if a:mode == 'dir'
-    cal self.closeAll()
-    cal self.windows.ScourShelf.open()
+    cal self.closeAllWindows()
+    cal self.scour.windows.ScourShelf.open()
+    " Build a menu, either cwd or built from a list of objects
+    "   - if parent object isn't included in menu, build some parents
+    " Load keybinds in that window
   elseif a:mode == 'selection'
-    cal self.closeAll()
+    cal self.closeAllWindows()
     cal self.windows.ScourTray.open()
     cal self.windows.ScourShelf.open()
   el
     echoerr 'Invalid mode sent'
   endif
+  cal self.updateWindows()
   redraw!
 endfu
 
 
-let s:Manager = s:scourManager.new('test')
-cal s:Manager.closeAll()
-cal s:Manager.openMode('selection')
+" let s:Manager = s:scourManager.new('test')
+" cal s:Manager.openMode('selection', {})
