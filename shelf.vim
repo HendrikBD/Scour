@@ -23,7 +23,7 @@ fu! s:scourShelf.close()
   if self.isOpen 
     let l:prevWindow = win_getid()
     cal win_gotoid(self.winId)
-    if &ft="ScourShelf"
+    if &ft=="ScourShelf"
       q
       cal win_gotoid(l:prevWindow)
     endif
@@ -35,4 +35,10 @@ fu! s:scourShelf.draw()
     cal win_gotoid(self.winId)
     cal self.menu.draw()
   endif
+endfu
+
+fu! s:scourShelf.initMenu(dataSource, type)
+  let self.menu = self.manager.buildMenu(a:dataSource, a:type)
+  cal self.draw()
+  cal self.manager.library.setHotkeys(a:type)
 endfu

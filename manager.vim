@@ -40,12 +40,15 @@ fu! s:scourManager.updateWindows()
       let self.scour.windows[l:winType].winId = l:winId
     endif
   endw
+
+  cal win_gotoid(l:prevWindow)
 endfu
 
 fu! s:scourManager.closeAllWindows()
   cal self.updateWindows()
   cal self.scour.windows.ScourShelf.close()
   cal self.scour.windows.ScourTray.close()
+  cal self.updateWindows()
 endfu
 
 
@@ -53,13 +56,14 @@ fu! s:scourManager.openMode(mode, options)
   cal self.updateWindows()
 
   if a:mode == 'dir'
-    cal self.closeAllWindows()
+    if self.scour.windows.ScourTray.isOpen
+      self.scour.windows.ScourTray.close()
+    endif
     cal self.scour.windows.ScourShelf.open()
-    " Build a menu, either cwd or built from a list of objects
-    "   - if parent object isn't included in menu, build some parents
-    " Load keybinds in that window
   elseif a:mode == 'selection'
-    cal self.closeAllWindows()
+    if self.scour.windows.ScourTray.isOpen || self.scour.windows.ScourShelf.isOpen
+      cal self.closeAllWindows()
+    endif
     cal self.scour.windows.ScourTray.open()
     cal self.scour.windows.ScourShelf.open()
   el
@@ -87,6 +91,18 @@ fu! s:scourManager.openAllNodes(node)
     endfo
   endif
 
+endfu
+
+fu! s:scourManager.buildMenu(dataSource, type)
+  if a:type == 'dir'
+    let l:newMenu = g:ScourMenu.new(self, a:dataSource, {'indent': 1, 'fullPath': 0})
+  elseif a:type == 'selection'
+    let l:newMenu = g:ScourMenu.new(self, a:dataSource, {'indent': 0, 'fullPath': 1})
+  el
+    echoerr 'Invalid menu type passed to manager!'
+  endif
+
+  return l:newMenu
 endfu
 
 

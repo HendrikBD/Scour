@@ -2,12 +2,15 @@
 let s:menu = {}
 let g:ScourMenu = s:menu
 
-function s:menu.new(manager, dataSource)
+function s:menu.new(manager, dataSource, ...)
   let l:newMenu = copy(self)
   let l:newMenu.manager = a:manager
   let l:newMenu.header = []
   cal l:newMenu.updateDataSource(a:dataSource)
   cal l:newMenu.resetOptions()
+  if exists('a:1')
+    cal l:newMenu.setOptions(a:1)
+  endif
 
   return l:newMenu
 endfu

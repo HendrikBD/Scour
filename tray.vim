@@ -24,7 +24,7 @@ fu! s:scourTray.close()
   if self.isOpen 
     let l:prevWindow = win_getid()
     cal win_gotoid(self.winId)
-    if &ft="ScourTray"
+    if &ft=="ScourTray"
       q
       cal win_gotoid(l:prevWindow)
     endif
@@ -36,4 +36,10 @@ fu! s:scourTray.draw()
     cal win_gotoid(self.winId)
     cal self.menu.draw()
   endif
+endfu
+
+fu! s:scourTray.initMenu(dataSource, type)
+  let self.menu = self.manager.buildMenu(a:dataSource, a:type)
+  cal self.draw()
+  cal self.manager.library.setHotkeys(a:type)
 endfu
