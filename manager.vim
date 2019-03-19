@@ -1,6 +1,5 @@
 so  /home/bhd-windows/.vim/homebrew/scour/library.vim
 
-
 let s:scourManager={}
 let g:ScourManager=s:scourManager
 
@@ -105,6 +104,18 @@ fu! s:scourManager.buildMenu(dataSource, type)
   return l:newMenu
 endfu
 
+
+fu! s:scourManager.select()
+  let l:line = line('.')
+  let l:winId = win_getid()
+  cal self.updateWindows()
+
+  if l:winId == self.scour.windows.ScourShelf.winId
+    cal self.scour.windows.ScourShelf.menu.select()
+  elseif l:winId == self.scour.windows.ScourTray.winId
+    cal self.scour.windows.ScourTray.menu.select()
+  end
+endfu
 
 " let s:Manager = s:scourManager.new('test')
 " cal s:Manager.openMode('selection', {})

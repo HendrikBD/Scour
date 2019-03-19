@@ -138,19 +138,18 @@ endfu
 " fu s:scour.update()
 " endfu
 
-fu! s:menu.openFile(line)
-  cal win_gotoid(self.prevWindow)
-  let l:path = self.items[a:line].getPath()
+fu! s:menu.openFile(menuItem)
+  let l:path = a:menuItem.node.getPath()
+  cal self.manager.closeAllWindows()
   execute 'edit ' . l:path
-  cal win_gotoid(self.scourWindow)
-  q
 endfu
 
 fu! s:menu.select()
-  let self.selection = line('.') - 2 " 1 comes from offset TODO: change to variable (dependent on header)
+  let l:menuIndex = line('.') - 1
+  let self.selection = self.items[l:menuIndex]
 
-  if self.items[self.selection].isDir
-    cal self.toggleDir(self.selection)
+  if self.selection.node.isDir
+    let self.selection.node.isOpen = !self.selection.node.isOpen
   el
     cal self.openFile(self.selection)
   endif

@@ -60,3 +60,9 @@ fu s:scourLibrary.getIndentFromPath(path)
   let l:indentLvl = len(split(l:relPath, '/'))
   return self.getIndent(l:indentLvl + l:padding)
 endf
+
+
+fu s:scourLibrary.setHotkeys(type)
+  nnoremap <buffer> <CR> :cal g:Scour.manager.select()<CR>
+  nnoremap <buffer> <Esc> :cal g:Scour.manager.closeAllWindows()<CR>
+endfu
