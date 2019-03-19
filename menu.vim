@@ -112,9 +112,9 @@ fu s:menu.draw()
       let l:displayStr = l:item.node.getDisplayString()
       let l:indent = self.manager.library.getIndentFromPath(l:item.node.path)
       if self.options.indent
-        let self.displayArr += [l:indent . l:item.node.getDisplayString()]
+        let self.displayArr += [l:indent . l:item.node.getDisplayString(self.options)]
       el
-        let self.displayArr += [l:item.node.getDisplayString()]
+        let self.displayArr += [l:item.node.getDisplayString(self.options)]
       endif
     endfo
 

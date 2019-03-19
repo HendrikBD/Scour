@@ -16,7 +16,7 @@ function s:scour.new(root)
   let l:newScour = copy(self)
   let l:newScour.manager = g:ScourManager.new(l:newScour)
 
-  let l:newScour.root = g:ScourDirNode.new(a:root)
+  let l:newScour.root = g:ScourDirNode.new(a:root, l:newScour.manager)
   let l:newScour.root.isOpen = 1
 
   return l:newScour

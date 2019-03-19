@@ -1,9 +1,10 @@
 let s:scourFileNode = {}
 let g:ScourFileNode = s:scourFileNode
 
-function s:scourFileNode.new(path)
+function s:scourFileNode.new(path, manager)
   let l:newScourFileNode = copy(self)
   let l:newScourFileNode.path = a:path
+  let l:newScourFileNode.manager = a:manager
   let l:newScourFileNode.displayStr = split(a:path, '/')[-1]
 
   let l:newScourFileNode.isDir = 0
@@ -43,7 +44,13 @@ fu s:scourFileNode.updateFilterTree(pathArr, filterTree)
   return l:filterTree
 endfu
 
-fu s:scourFileNode.getDisplayString()
-    let l:indent = g:ScourHelper.getIndent(len(split(split(self.path, g:Scour.root.path)[0], '/')))
-    return l:indent . self.displayStr
+fu s:scourFileNode.getDisplayString(...)
+  if exists('a:1')
+    if a:1.fullPath
+      let l:displayStr =  self.manager.scour.root.displayStr . split(self.path, self.manager.scour.root.path . '/')[0]
+      return l:displayStr
+    endif
+  endif
+
+  return self.displayStr
 endfu

@@ -1,30 +1,31 @@
 let s:dirNode = {}
 let g:ScourDirNode = s:dirNode
 
-function s:dirNode.new(path)
+function s:dirNode.new(path, manager)
   let l:newScourDirNode = copy(self)
   let l:newScourDirNode.path = a:path
+  let l:newScourDirNode.manager = a:manager
   let l:newScourDirNode.displayStr = split(a:path, '/')[-1] . '/'
 
   let l:newScourDirNode.isOpen = 0
   let l:newScourDirNode.isDir = 1
 
-  cal l:newScourDirNode.loadChildren()
+  cal l:newScourDirNode.loadChildren(a:manager)
   
   return l:newScourDirNode
 
 endfu
 
-function s:dirNode.loadChildren()
+function s:dirNode.loadChildren(manager)
   let l:childPaths = split(globpath(self.path, '*'), '\n')
 
   let self.childNodes = {}
 
   for l:childPath in l:childPaths
     if isdirectory(l:childPath)
-      let self.childNodes[split(l:childPath, self.path . '/')[0]] = g:ScourDirNode.new(l:childPath)
+      let self.childNodes[split(l:childPath, self.path . '/')[0]] = g:ScourDirNode.new(l:childPath, a:manager)
     el
-      let self.childNodes[split(l:childPath, self.path . '/')[0]] = g:ScourFileNode.new(l:childPath)
+      let self.childNodes[split(l:childPath, self.path . '/')[0]] = g:ScourFileNode.new(l:childPath, a:manager)
     en
   endfo
 endf
@@ -70,21 +71,16 @@ fu s:dirNode.getNestedPaths(allPaths)
   return l:paths
 endfu
 
-fu s:dirNode.getDisplayString()
-  if self == g:Scour.root
-    return self.displayStr
-  el
-    let l:indent = g:ScourHelper.getIndent(len(split(split(self.path, g:Scour.root.path)[0], '/')))
-    return l:indent . self.displayStr
+fu s:dirNode.getDisplayString(...)
+  if exists('a:1') && (self.manager.scour.root.path != self.path)
+    if a:1.fullPath
+      let l:displayStr =  self.manager.scour.root.displayStr . split(self.path, self.manager.scour.root.path . '/')[0]
+      return l:displayStr
+    endif
   endif
-endfu
 
-" function s:dirNode.drawSelected(paths)
-"   let l:paths = []
-"   for l:path in a:paths
-"     let l:paths += split(l:path, self.root.path)
-"   endfo
-" endf
+  return self.displayStr
+endfu
 
 
 fu s:dirNode.updateFilterTree(pathArr, filterTree)
