@@ -50,8 +50,10 @@ fu! s:scour.openAtFile()
 
   cal self.manager.openMode('dir', {})
 
-  let l:dataSource = {'type': 'tree', 'data': l:node}
+  let l:dataSource = {'type': 'tree', 'data': l:node }
   let self.windows.ScourShelf.menu = g:ScourMenu.new(self.manager, l:dataSource)
+  cal self.windows.ScourShelf.menu.setOptions({'indent': 0})
+
   cal self.windows.ScourShelf.draw()
 
 endfu
@@ -61,12 +63,15 @@ function s:scour.filterCWD()
   cal self.manager.openMode('selection', {})
 
   let l:dataSource = {'type': 'list', 'data': self.root.getPaths(0)}
-  " echo l:dataSource
-  " let l:dataSource = {'type': 'tree', 'data': self.root}
+
   let self.windows.ScourShelf.menu = g:ScourMenu.new(self.manager, l:dataSource)
   cal self.windows.ScourShelf.draw()
+  " set hotkeys
+
   let self.windows.ScourTray.menu = g:ScourMenu.new(self.manager, l:dataSource)
   cal self.windows.ScourTray.menu.setOptions({'indent': 0, 'fullPath': 1})
+  cal self.windows.ScourTray.draw()
+  " set hotkeys
 endf
 
 function s:scour.openBuffHistory()

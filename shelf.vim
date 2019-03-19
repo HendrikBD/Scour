@@ -11,10 +11,12 @@ function s:scourShelf.new(manager)
 endfu
 
 fu! s:scourShelf.open()
-  vert topleft vnew
-  vertical resize 40
-  cal self.manager.library.setBufOptions()
-  setlocal filetype=ScourShelf
+  if !self.isOpen 
+    vert topleft vnew
+    vertical resize 40
+    cal self.manager.library.setBufOptions()
+    setlocal filetype=ScourShelf
+  endif
 endfu
 
 fu! s:scourShelf.close()

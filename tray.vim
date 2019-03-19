@@ -12,10 +12,12 @@ function s:scourTray.new(manager)
 endfu
 
 fu! s:scourTray.open()
-  botright new
-  resize 15
-  cal self.manager.library.setBufOptions()
-  setlocal filetype=ScourTray
+  if !self.isOpen
+    botright new
+    resize 15
+    cal self.manager.library.setBufOptions()
+    setlocal filetype=ScourTray
+  endif
 endfu
 
 fu! s:scourTray.close()
@@ -26,5 +28,12 @@ fu! s:scourTray.close()
       q
       cal win_gotoid(l:prevWindow)
     endif
+  endif
+endfu
+
+fu! s:scourTray.draw()
+  if self.isOpen
+    cal win_gotoid(self.winId)
+    cal self.menu.draw()
   endif
 endfu
