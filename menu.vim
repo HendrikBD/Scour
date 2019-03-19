@@ -7,11 +7,38 @@ function s:menu.new(manager, dataSource)
   let l:newMenu.manager = a:manager
   let l:newMenu.header = []
   cal l:newMenu.updateDataSource(a:dataSource)
+  cal l:newMenu.resetOptions()
 
   return l:newMenu
 endfu
 
-fu s:menu.buildFromArray(pathArr, root)
+
+fu! s:menu.drawTree()
+  if self.scour.window.isOpen('ScourShelf')
+    echo 'is open'
+  endif
+endfu
+
+fu! s:menu.buildTreeFromArray()
+  let l:pathArr = sort(a:pathArr)
+  let self.ScourTree.items = []
+
+  for l:path in l:pathArr
+    let l:node = self.scour.root.getNodeFromPath(l:path)
+    let self.ScourTree.items += [l:node]
+  endfo
+endfu
+
+fu! s:menu.resetOptions()
+  let self.options = {'indent': 1, 'fullPath': 0}
+endfu
+
+fu! s:menu.setOptions(options)
+  for l:key in keys(a:options)
+    let self.options[l:key] = a:options[l:key]
+  endfo
+endfu
+
 fu! s:menu.updateDataSource(dataSource)
   if a:dataSource.type == 'tree'
     let self.items = self.buildFromNode(a:dataSource.data)
@@ -81,7 +108,11 @@ fu s:menu.draw()
     for l:item in self.items
       let l:displayStr = l:item.node.getDisplayString()
       let l:indent = self.manager.library.getIndentFromPath(l:item.node.path)
-      let self.displayArr += [l:indent . l:item.node.getDisplayString()]
+      if self.options.indent
+        let self.displayArr += [l:indent . l:item.node.getDisplayString()]
+      el
+        let self.displayArr += [l:item.node.getDisplayString()]
+      endif
     endfo
 
     1,$delete

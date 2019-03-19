@@ -65,6 +65,8 @@ function s:scour.filterCWD()
   " let l:dataSource = {'type': 'tree', 'data': self.root}
   let self.windows.ScourShelf.menu = g:ScourMenu.new(self.manager, l:dataSource)
   cal self.windows.ScourShelf.draw()
+  let self.windows.ScourTray.menu = g:ScourMenu.new(self.manager, l:dataSource)
+  cal self.windows.ScourTray.menu.setOptions({'indent': 0, 'fullPath': 1})
 endf
 
 function s:scour.openBuffHistory()
