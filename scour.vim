@@ -1,6 +1,4 @@
 " so  /home/bhd-windows/.vim/homebrew/scour/helper.vim
-" so  /home/bhd-windows/.vim/homebrew/scour/prompt.vim
-" so  /home/bhd-windows/.vim/homebrew/scour/filter.vim
 " so  /home/bhd-windows/.vim/homebrew/scour/keymap.vim
 
 so  /home/bhd-windows/.vim/homebrew/scour/manager.vim
@@ -9,12 +7,16 @@ so  /home/bhd-windows/.vim/homebrew/scour/tray.vim
 so  /home/bhd-windows/.vim/homebrew/scour/fileNode.vim
 so  /home/bhd-windows/.vim/homebrew/scour/dirNode.vim
 so  /home/bhd-windows/.vim/homebrew/scour/menu.vim
+so  /home/bhd-windows/.vim/homebrew/scour/prompt.vim
+so  /home/bhd-windows/.vim/homebrew/scour/filter.vim
 
 let s:scour={}
 
 function s:scour.new(root)
   let l:newScour = copy(self)
   let l:newScour.manager = g:ScourManager.new(l:newScour)
+  let l:newScour.prompt = g:ScourPrompt.new()
+  let l:newScour.filter = g:ScourFilter.new()
 
   let l:newScour.root = g:ScourDirNode.new(a:root, l:newScour.manager)
   let l:newScour.root.isOpen = 1
@@ -61,12 +63,16 @@ endfu
 
 function s:scour.filterCWD()
   cal self.manager.openAllNodes(self.root)
-  cal self.manager.openMode('selection', {})
+  " cal self.manager.openMode('selection', {})
+  cal self.manager.openMode('dir', {})
 
   let l:dataSource = {'type': 'list', 'data': self.root.getPaths(0)}
 
-  cal self.windows.ScourTray.initMenu(l:dataSource, 'selection')
+  " cal self.windows.ScourTray.initMenu(l:dataSource, 'selection')
   cal self.windows.ScourShelf.initMenu(l:dataSource, 'dir')
+
+  cal self.prompt.addUpdateFunction(self.windows.ScourShelf.updateFromFilter)
+  cal self.manager.initPrompt()
 
 endf
 
@@ -205,5 +211,5 @@ endfu
 
 let g:Scour = s:scour.new(getcwd())
 
-" nnoremap <leader>/ :cal g:Scour.filterCWD()<CR>
+nnoremap <leader>/ :cal g:Scour.filterCWD()<CR>
 " nnoremap <leader>d :cal g:Scour.toggle()<CR>

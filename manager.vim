@@ -104,6 +104,10 @@ fu! s:scourManager.buildMenu(dataSource, type)
   return l:newMenu
 endfu
 
+fu! s:scourManager.initPrompt()
+  cal self.scour.prompt.start()
+endfu
+
 
 fu! s:scourManager.select()
   let l:line = line('.')
@@ -115,6 +119,15 @@ fu! s:scourManager.select()
   elseif l:winId == self.scour.windows.ScourTray.winId
     cal self.scour.windows.ScourTray.menu.select()
   end
+endfu
+
+fu! s:scourManager.filterAll()
+  return self.fzf(self.scour.root.getPaths(1), self.scour.prompt.value)
+endfu
+
+fu! s:scourManager.fzf(list, term)
+  let self.outputArr = split(system('xargs printf | fzf --filter="' . a:term . '"', shellescape(join(a:list, '\n'))), '\n')
+  return self.outputArr
 endfu
 
 " let s:Manager = s:scourManager.new('test')

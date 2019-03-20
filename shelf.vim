@@ -42,3 +42,9 @@ fu! s:scourShelf.initMenu(dataSource, type)
   cal self.draw()
   cal self.manager.library.setHotkeys(a:type)
 endfu
+
+fu! s:scourShelf.updateFromFilter()
+  let l:filtered = self.manager.filterAll()
+  cal self.menu.updateDataSource({'type': 'list', 'data': l:filtered})
+  cal self.draw()
+endfu
