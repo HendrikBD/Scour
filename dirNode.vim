@@ -22,8 +22,12 @@ function s:dirNode.loadChildren(manager)
   let self.childNodes = {}
 
   for l:childPath in l:childPaths
+
     if isdirectory(l:childPath)
-      let self.childNodes[split(l:childPath, self.path . '/')[0]] = g:ScourDirNode.new(l:childPath, a:manager)
+      let l:localPath = split(l:childPath, self.path . '/')[0]
+      if !self.manager.isIgnoredDir(l:localPath)
+        let self.childNodes[l:localPath] = g:ScourDirNode.new(l:childPath, a:manager)
+      endif
     el
       let self.childNodes[split(l:childPath, self.path . '/')[0]] = g:ScourFileNode.new(l:childPath, a:manager)
     en

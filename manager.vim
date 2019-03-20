@@ -108,6 +108,10 @@ fu! s:scourManager.initPrompt()
   cal self.scour.prompt.start()
 endfu
 
+fu! s:scourManager.isIgnoredDir(dir)
+  return index(self.library.getIgnoredDirs(), a:dir) >= 0
+endfu
+
 
 fu! s:scourManager.select()
   let l:line = line('.')
