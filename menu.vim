@@ -1,3 +1,5 @@
+so  /home/bhd-windows/.vim/homebrew/scour/menuTree.vim
+so  /home/bhd-windows/.vim/homebrew/scour/menuItem.vim
 
 let s:menu = {}
 let g:ScourMenu = s:menu
@@ -46,7 +48,8 @@ fu! s:menu.updateDataSource(dataSource)
   if a:dataSource.type == 'tree'
     let self.items = self.buildFromNode(a:dataSource.data)
   elseif a:dataSource.type == 'list'
-    let self.items = self.buildFromList(a:dataSource.data)
+    let self.menuTree = self.buildFromList(a:dataSource.data)
+    let self.items = self.collapseTreeToList(self.menuTree)
   el
     echoerr 'Invalid dataSource'
   endif
@@ -73,16 +76,34 @@ endfu
 
 fu s:menu.buildFromList(pathArr)
   let l:pathArr = sort(a:pathArr)
-  let l:items = []
+
+  let l:menuTree = g:ScourMenuTree.new(self.manager.getRoot().path, self.manager)
 
   for l:path in l:pathArr
-    let l:node = self.manager.scour.root.getNodeFromPath(l:path)
-    if l:node.isDir
-      let l:items += [{'type': 'dirNode', 'node': l:node}]
-    el
-      let l:items += [{'type': 'fileNode', 'node': l:node}]
+    let l:relPaths = split(join(split(l:path, l:menuTree.path), '/'), '/')
+
+    if len(l:relPaths) > 0
+      cal l:menuTree.addNodes(l:relPaths)
     endif
+
   endfo
+
+  return l:menuTree
+
+endfu
+
+fu s:menu.collapseTreeToList(menuTree)
+  let l:items = [a:menuTree]
+
+  if has_key(a:menuTree, 'childNodes')
+
+    for l:childNode in values(a:menuTree.childNodes)
+      let l:items += self.collapseTreeToList(l:childNode[0])
+      " echo l:childNode[0]
+    endfo
+
+  endif
+  " echo a:menuTree.childNodes
 
   return l:items
 endfu

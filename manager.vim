@@ -134,5 +134,13 @@ fu! s:scourManager.fzf(list, term)
   return self.outputArr
 endfu
 
+fu! s:scourManager.isRoot(path)
+  return self.scour.root.path == a:path
+endfu
+
+fu! s:scourManager.getRoot()
+  return self.scour.root
+endfu
+
 " let s:Manager = s:scourManager.new('test')
 " cal s:Manager.openMode('selection', {})
