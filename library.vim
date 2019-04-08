@@ -67,6 +67,45 @@ fu s:scourLibrary.setHotkeys(type)
   nnoremap <buffer> <Esc> :cal g:Scour.manager.closeAllWindows()<CR>
 endfu
 
+fu s:scourLibrary.stringifyArray(array)
+  let l:stringified = []
+
+  for l:item in a:array
+    let l:stringified += self.stringifyObject(l:item)
+  endfo
+
+  return l:stringified
+endfu
+
+fu s:scourLibrary.stringifyObject(obj)
+  let l:itemType = type(a:obj)
+  let l:stringified = []
+
+  if l:itemType == 0
+    let l:stringified += ['' . a:obj]
+  elseif l:itemType == 1
+    let l:stringified += [a:obj]
+  elseif l:itemType == 2
+    let l:stringified += ['func()']
+  elseif l:itemType == 3
+    for l:item in a:obj
+      let l:stringified += self.stringifyObject(l:item)
+    endfo
+  elseif l:itemType == 4
+    for l:key in keys(a:obj)
+      let l:stringified += [l:key . ' {']
+      let l:stringified += self.stringifyObject(a:obj[l:key])
+      let l:stringified += ['}']
+    endfo
+  elseif l:itemType == 6
+    let l:stringified += ['true']
+  endif
+
+  return l:stringified
+
+endfu
+
+
 fu s:scourLibrary.getIgnoredDirs()
   let l:ignoreDirs = ['.git', 'node_modules']
   return l:ignoreDirs

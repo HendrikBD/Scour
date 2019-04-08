@@ -74,6 +74,31 @@ fu! s:menu.buildFromNode(node)
   return l:items
 endfu
 
+fu! s:menu.getMenuPaths()
+  let l:itemPaths = []
+  for l:item in self.items
+    if has_key(l:item.menuTree, 'path')
+      let l:itemPaths += [l:item.menuTree.path]
+      let l:itemPaths += [l:item.menuTree.options]
+    else
+      echoerr 'No "path" key found on menuItem'
+    endif
+  endfo
+  return l:itemPaths
+endfu
+
+fu! s:menu.getMenuItems()
+  let l:items = []
+  for l:item in self.items
+    if has_key(l:item, 'displayStr')
+      let l:items += [l:item.displayStr]
+    else
+      " echo l:item
+      echoerr 'No "displayStr" key found on menuItem'
+    endif
+  endfo
+  return l:items
+endfu
 fu s:menu.buildFromList(pathArr)
   let l:pathArr = sort(a:pathArr)
 
@@ -118,10 +143,12 @@ fu! s:menu.buildFromFilter()
   endfo
 endfu
 
-fu s:menu.open()
-  cal self.draw()
-  cal self.keymap.setKeyMap()
-  let self.scourWindow = win_getid()
+fu s:menu.getPaths()
+  let l:paths = []
+  for l:item in self.items
+    let l:paths += [l:item.node.path]
+  endfo
+  return l:paths
 endfu
 
 fu s:menu.draw()

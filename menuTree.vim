@@ -23,6 +23,16 @@ function s:menuTree.addNode(path)
   let self.childNodes += [s:menuTree.new(a:path, self)]
 endfu
 
+function s:menuTree.getTreeStruct()
+  let l:paths = [{'path': self.path}, {'options': self.options}]
+  if has_key(self, 'childNodes')
+    for l:child in keys(self.childNodes)
+      let l:paths += self.childNodes[l:child].getTreeStruct()
+    endfo
+  endif
+  return l:paths
+endfu
+
 " Will add nodes for all those that don't exist
 "
 function s:menuTree.addNodes(relPaths)
