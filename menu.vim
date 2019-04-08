@@ -99,6 +99,15 @@ fu! s:menu.getMenuItems()
   endfo
   return l:items
 endfu
+
+
+" Builds a menu from a set of given paths, for each path a menuItem is created
+" with the relevant node
+"
+" Further, this includes items to represent one or many dirs which are parents
+" of the existing nodes. If it represents multiple dirs, will create a
+" 'collapsed' menuItem.
+"
 fu s:menu.buildFromList(pathArr)
   let l:pathArr = sort(a:pathArr)
 
@@ -118,30 +127,78 @@ fu s:menu.buildFromList(pathArr)
 endfu
 
 fu s:menu.collapseTreeToList(menuTree)
-  let l:items = [a:menuTree]
 
-  if has_key(a:menuTree, 'childNodes')
-
-    for l:childNode in values(a:menuTree.childNodes)
-      let l:items += self.collapseTreeToList(l:childNode[0])
-      " echo l:childNode[0]
-    endfo
-
+  " First add the current tree, including checking if it can be collapsed, and
+  " if so, collapsing adding items from appropriate child
+  if has_key(a:menuTree, 'childNodes') && len(keys(a:menuTree.childNodes)) == 1 && values(a:menuTree.childNodes)[0].node.isDir
+    let l:menuTree = self.getCollapsedTree(a:menuTree)
+    let l:displayStr = split(a:menuTree.path, '/')[-1] . split(l:menuTree.path, a:menuTree.path)[0]
+    let l:items = [g:ScourMenuItem.new(l:menuTree, l:displayStr)]
+  else
+    let l:menuTree = a:menuTree
+    let l:items = [g:ScourMenuItem.new(a:menuTree)]
   endif
-  " echo a:menuTree.childNodes
+
+  " Next, go through child nodes and add to item list
+  if has_key(l:menuTree, 'childNodes')
+    for l:relChild in keys(l:menuTree.childNodes)
+      let l:childTree = l:menuTree.childNodes[l:relChild]
+      let l:items += self.collapseTreeToList(l:childTree)
+    endfo
+  endif
 
   return l:items
 endfu
 
-fu! s:menu.buildFromFilter()
-  let l:pathArr = sort(self.scour.root.getPaths(1))
-  let self.items = []
 
-  for l:path in l:pathArr
-    let l:node = self.scour.root.getNodeFromPath(l:path)
-    let self.items += [l:node]
-  endfo
+fu s:menu.getCollapsedTree(menuTree)
+  if a:menuTree.options.collapsable && has_key(a:menuTree, 'childNodes') && len(a:menuTree.childNodes) == 1 && values(a:menuTree.childNodes)[0].node.isDir
+    return self.getCollapsedTree(values(a:menuTree.childNodes)[0])
+  else
+    return a:menuTree
+  endif
 endfu
+
+
+" Is called when a parental stack is ready to be resolved into menu items. 
+"
+" This will pop items off the stack until the next is a parent of the passed
+" childDir. Items will be added for each item popped as well as for each
+" childPath included in the element.
+"
+fu! s:menu.resolveParentalStack(parentalStack, childDir)
+  let l:results = {'items': [], 'parentalStack': a:parentalStack}
+
+  for l:parent in reverse(a:parentalStack)
+    let l:relPaths = split(chidlDir, l:parent.path)
+
+    " If childDir isn't child of current parent, pop & add to items
+      if a:childDir == l:relPath
+        let l:node = self.manager.scour.root.getNodeFromPath(a:parentPath)
+        let l:results.items += [{'type': 'dirNode', 'node': l:node}]
+
+        " Add all related children
+        for childPath in l:parent.children
+          let l:node = self.manager.scour.root.getNodeFromPath(a:parentPath)
+          if l:node.isDir
+            let l:results.items += [{'type': 'dirNode', 'node': l:node}]
+          el
+            let l:results.items += [{'type': 'fileNode', 'node': l:node}]
+          endif
+        endfo
+
+        let l:results.parentalStack = l:results.parentalStack[0:-2]
+      el
+        break
+      endif
+
+  endfo
+
+  return l:results
+
+endfu
+
+
 
 fu s:menu.getPaths()
   let l:paths = []
@@ -172,6 +229,17 @@ fu s:menu.draw()
     cal cursor(1, 1)
   endif
 endfu
+
+fu s:menu.drawFromArray(array)
+  let l:array = self.manager.library.stringifyArray(a:array)
+  if &ft == 'ScourShelf' || &ft == 'ScourTray'
+    1,$delete
+    cal append(1, a:array)
+    $delete
+    cal cursor(1, 1)
+  endif
+endfu
+
 
 fu! s:menu.filterCWD()
   cal self.filter.setInputArr(self.scour.root.getPaths(1))

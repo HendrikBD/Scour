@@ -8,9 +8,9 @@ function s:menuTree.new(path, manager, ...)
   let l:newMenuTree.node = l:newMenuTree.manager.getRoot().getNodeFromPath(a:path)
 
   if exists('a:1')
-    let self.options = a:1
+    let l:newMenuTree.options = a:1
   el
-    let self.options = {'collabsable': 1}
+    let l:newMenuTree.options = {'collapsable': 0}
   endif
 
   return l:newMenuTree
@@ -40,13 +40,30 @@ function s:menuTree.addNodes(relPaths)
     let self.childNodes = {}
   endif
 
-  if !has_key(self.childNodes, a:relPaths[0])
-    let l:childPath = self.path . '/' . a:relPaths[0]
-    let self.childNodes[a:relPaths[0]] = [s:menuTree.new(l:childPath, self.manager)]
+  let l:treeOptions = self.getOptions(a:relPaths)
 
-    if len(a:relPaths) > 1
-      cal self.childNodes[a:relPaths[0]].addNodes(a:relPaths[1:-1])
-    endif
+  if !has_key(self.childNodes, a:relPaths[0])
+
+    let l:childPath = self.path . '/' . a:relPaths[0]
+    let self.childNodes[a:relPaths[0]] = s:menuTree.new(l:childPath, self.manager, l:treeOptions)
+
+  elseif !l:treeOptions.collapsable && self.childNodes[a:relPaths[0]].options.collapsable
+    let self.childNodes[a:relPaths[0]].options.collapsable = 1
   endif
 
+  if self.childNodes[a:relPaths[0]].options.collapsable
+  endif
+
+  if len(a:relPaths) > 1
+    cal self.childNodes[a:relPaths[0]].addNodes(a:relPaths[1:-1])
+  endif
+
+endfu
+
+function s:menuTree.getOptions(relPaths)
+  if len(a:relPaths) == 1
+    return {'collapsable': 0}
+  else
+    return {'collapsable': 1}
+  endif
 endfu
