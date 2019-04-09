@@ -10,6 +10,7 @@ function s:menu.new(manager, dataSource, ...)
   let l:newMenu.header = []
   cal l:newMenu.updateDataSource(a:dataSource)
   cal l:newMenu.resetOptions()
+
   if exists('a:1')
     cal l:newMenu.setOptions(a:1)
   endif
@@ -201,8 +202,6 @@ fu! s:menu.resolveParentalStack(parentalStack, childDir)
 
 endfu
 
-
-
 fu s:menu.getPaths()
   let l:paths = []
   for l:item in self.items
@@ -308,49 +307,3 @@ fu s:menu.updateFromFilter()
     cal cursor(1,1)
   endif
 endfu
-
-
-
-" fu! s:menu.watchKeys()
-"   let l:done = 0
-"
-"   while !l:done
-"       redraw!
-"       " call self._echoPrompt()
-"
-"       let l:key = getchar()
-"       let l:done = self.handleKeypress(l:key)
-"   endwhile
-" endfu
-"
-" fu! s:menu.handleKeypress(key)
-"   if a:key == 106
-"       call self.cursorUp()
-"   elseif a:key == 107
-"       call self.cursorDown()
-"   elseif a:key == 27
-"       q
-"       return 1
-"   elseif a:key == 13 "enter
-"     let self.selection = line('.') - 2 " 1 comes from offset TODO: change to variable (dependent on header)
-"     q
-"     cal self.openFile(self.selection)
-"     return 1
-"   elseif a:key == 47
-"     " g:Scour.ui.pushFcn(g:Scour.keymap.getFcn('Esc'))
-"     "
-"     " Tell ui which key was pressed & line number
-"   "   return 1
-"   " elseif a:key == "\r" || a:key == "\n" "enter and ctrl-j
-"   "   g:Scour.ui.pushFcn(g:Scour.keymap.getFcn('Enter'))
-"   "   return 1
-"   else
-"       " let index = self._nextIndexFor(a:key)
-"       " if index != -1
-"       "     let self.selection = index
-"       "     if len(self._allIndexesFor(a:key)) == 1
-"       "         return 1
-"       "     endif
-"       " endif
-"   endif
-" endfu

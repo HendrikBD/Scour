@@ -126,6 +126,9 @@ fu! s:scourManager.select()
 endfu
 
 fu! s:scourManager.filterAll()
+  " let serachDict = {self.scour.root.getSearchDict()
+  " echo self.scour.root.getSearchStrings()
+  " return self.fzf(self.scour.root.getSearchStrings(), self.scour.prompt.value)
   return self.fzf(self.scour.root.getPaths(1), self.scour.prompt.value)
 endfu
 

@@ -225,5 +225,3 @@ let g:Scour = s:scour.new(getcwd())
 
 nnoremap <silent> <leader>/ :cal g:Scour.filterCWD()<CR>
 nnoremap <silent> <leader>c :cal g:Scour.manager.closeAllWindows()<CR>
-" nnoremap <leader>/ :cal g:Scour.openCWD()<CR>
-" nnoremap <leader>d :cal g:Scour.toggle()<CR>

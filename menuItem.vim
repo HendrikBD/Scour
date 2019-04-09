@@ -1,4 +1,3 @@
-
 let s:menuItem = {}
 let g:ScourMenuItem = s:menuItem
 

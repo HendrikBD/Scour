@@ -6,6 +6,7 @@ function s:scourFileNode.new(path, manager)
   let l:newScourFileNode.path = a:path
   let l:newScourFileNode.manager = a:manager
   let l:newScourFileNode.displayStr = split(a:path, '/')[-1]
+  let l:newScourFileNode.searchStr = join(split(a:path, '/')[-2:-1], '/')
 
   let l:newScourFileNode.isDir = 0
   
@@ -53,4 +54,8 @@ fu s:scourFileNode.getDisplayString(...)
   endif
 
   return self.displayStr
+endfu
+
+fu! s:scourFileNode.getSearchStrings()
+  return [self.searchStr]
 endfu

@@ -7,6 +7,12 @@ function s:dirNode.new(path, manager)
   let l:newScourDirNode.manager = a:manager
   let l:newScourDirNode.displayStr = split(a:path, '/')[-1] . '/'
 
+  if exists('a:manager.scour.root')
+    let l:newScourDirNode.searchStr = split(a:path, '/')[-1]
+  el
+    let l:newScourDirNode.searchStr = join(split(a:path, '/')[-2:-1], '/')
+  endif
+
   let l:newScourDirNode.isOpen = 0
   let l:newScourDirNode.isDir = 1
 
@@ -39,22 +45,6 @@ function s:dirNode.getPath()
   return self.path
 endfu
 
-" fu s:dirNode.getPaths()
-"   let l:paths = [self.path]
-"   let l:paths += self.getNestedPaths()
-"
-"   return l:paths
-" endfu
-"
-" fu s:dirNode.getNestedPaths()
-"   let l:paths = []
-"
-"   for i in items(self.childNodes)
-"     let l:paths += i[1].getPaths()
-"   endfo
-"
-"   return l:paths
-" endfu
 
 fu s:dirNode.getPaths(allPaths)
   let l:paths = [self.path]
@@ -63,6 +53,13 @@ fu s:dirNode.getPaths(allPaths)
   endif
 
   return l:paths
+endfu
+
+fu s:dirNode.getSearchStrings()
+  let l:searchStr = [self.searchStr]
+  let l:searchStr += self.getNestedPaths()
+
+  return l:searchStr
 endfu
 
 fu s:dirNode.getNestedPaths(allPaths)
