@@ -63,8 +63,8 @@ endf
 
 
 fu s:scourLibrary.setHotkeys(type)
-  nnoremap <buffer> <CR> :cal g:Scour.manager.select()<CR>
-  nnoremap <buffer> <Esc> :cal g:Scour.manager.closeAllWindows()<CR>
+  nnoremap <silent> <buffer> <CR> :cal g:Scour.manager.select()<CR>
+  nnoremap <silent> <buffer> <Esc> :cal g:Scour.manager.closeAllWindows()<CR>
 endfu
 
 fu s:scourLibrary.stringifyArray(array)
