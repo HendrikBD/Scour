@@ -62,17 +62,29 @@ endfu
 
 
 function s:scour.filterCWD()
+
+  " Must be able to open/close dirNodes while still showing filter results
+  "
+  "   -> can accomplish by closing all dirNodes, filtering from all paths
+  "   then building from filtered paths and open nodes
+  "
+  "   (including collapsing nodes if lonely) then c
+
   cal self.manager.openAllNodes(self.root)
-  " cal self.manager.openMode('selection', {})
-  cal self.manager.openMode('dir', {})
+  cal self.manager.openMode('selection', {})
 
-  let l:dataSource = {'type': 'list', 'data': self.root.getPaths(0)}
+  let l:paths = self.root.getPaths(0)
+  let l:paths = filter(l:paths, 'v:val != "/home/bhd-windows/.vim/homebrew/scour/doc"')
+  " let l:paths = filter(l:paths, 'v:val != "/home/bhd-windows/.vim/homebrew/scour/doc/Scour.txt"')
+  " let l:paths = filter(l:paths, 'v:val != "/home/bhd-windows/.vim/homebrew/scour/doc/test"')
+  " let l:paths = filter(l:paths, 'v:val != "/home/bhd-windows/.vim/homebrew/scour/doc/test/test2"')
 
-  " cal self.windows.ScourTray.initMenu(l:dataSource, 'selection')
+  let l:dataSource = {'type': 'list', 'data': l:paths}
+
   cal self.windows.ScourShelf.initMenu(l:dataSource, 'dir')
 
-  cal self.prompt.addUpdateFunction(self.windows.ScourShelf.updateFromFilter)
-  cal self.manager.initPrompt()
+  " cal self.prompt.addUpdateFunction(self.windows.ScourShelf.updateFromFilter)
+  " cal self.manager.initPrompt()
 
 endf
 
