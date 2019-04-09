@@ -50,6 +50,9 @@ fu! s:menu.updateDataSource(dataSource)
   elseif a:dataSource.type == 'list'
     let self.menuTree = self.buildFromList(a:dataSource.data)
     let self.items = self.collapseTreeToList(self.menuTree)
+
+    let l:itemInfo = self.manager.library.stringifyObject(self.getMenuItems())
+    cal self.drawFromArray(l:itemInfo)
   el
     echoerr 'Invalid dataSource'
   endif
@@ -130,7 +133,7 @@ fu s:menu.collapseTreeToList(menuTree)
 
   " First add the current tree, including checking if it can be collapsed, and
   " if so, collapsing adding items from appropriate child
-  if has_key(a:menuTree, 'childNodes') && len(keys(a:menuTree.childNodes)) == 1 && values(a:menuTree.childNodes)[0].node.isDir
+  if a:menuTree.options.collapsable && has_key(a:menuTree, 'childNodes') && len(keys(a:menuTree.childNodes)) == 1 && values(a:menuTree.childNodes)[0].node.isDir
     let l:menuTree = self.getCollapsedTree(a:menuTree)
     let l:displayStr = split(a:menuTree.path, '/')[-1] . split(l:menuTree.path, a:menuTree.path)[0]
     let l:items = [g:ScourMenuItem.new(l:menuTree, l:displayStr)]
