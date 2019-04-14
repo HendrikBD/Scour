@@ -62,7 +62,7 @@ fu s:scourLibrary.getIndentFromPath(path)
 endf
 
 
-fu s:scourLibrary.setHotkeys(type)
+fu s:scourLibrary.setHotkeys()
   nnoremap <silent> <buffer> <CR> :cal g:Scour.manager.select()<CR>
   nnoremap <silent> <buffer> <Esc> :cal g:Scour.manager.closeAllWindows()<CR>
 endfu
@@ -89,7 +89,9 @@ fu s:scourLibrary.stringifyObject(obj)
     let l:stringified += ['func()']
   elseif l:itemType == 3
     for l:item in a:obj
+      let l:stringified += ['[']
       let l:stringified += self.stringifyObject(l:item)
+      let l:stringified += ['],']
     endfo
   elseif l:itemType == 4
     for l:key in keys(a:obj)

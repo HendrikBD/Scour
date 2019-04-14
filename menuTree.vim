@@ -24,7 +24,11 @@ function s:menuTree.addNode(path)
 endfu
 
 function s:menuTree.getTreeStruct()
-  let l:paths = [{'path': self.path}, {'options': self.options}]
+  let l:obj = {'path': self.path, 'options': self.options, 'isDir': self.node.isDir}
+  if self.node.isDir
+    let l:obj.isOpen = self.node.isOpen
+  endif
+  let l:paths = [l:obj]
   if has_key(self, 'childNodes')
     for l:child in keys(self.childNodes)
       let l:paths += self.childNodes[l:child].getTreeStruct()

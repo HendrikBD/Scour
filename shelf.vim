@@ -1,9 +1,10 @@
 let s:scourShelf={}
 let g:ScourShelf=s:scourShelf
 
-function s:scourShelf.new(manager)
+function s:scourShelf.new(manager, menu)
   let l:newShelf = copy(self)
   let l:newShelf.manager = a:manager
+  let l:newShelf.menu = a:menu
   let l:newShelf.isOpen = 0
   let l:newShelf.winId = -1
   

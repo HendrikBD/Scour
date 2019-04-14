@@ -1,9 +1,10 @@
 let s:scourTray={}
 let g:ScourTray=s:scourTray
 
-function s:scourTray.new(manager)
+function s:scourTray.new(manager, menu)
   let l:newTray = copy(self)
   let l:newTray.manager = a:manager
+  let l:newTray.menu = a:menu
   let l:newTray.isOpen = 0
   let l:newTray.winId = -1
   " let l:newTray.menu = g:ScourMenu.new()

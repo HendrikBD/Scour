@@ -123,3 +123,20 @@ fu s:dirNode.getNodeFromPath(path)
 
   endif
 endfu
+
+fu s:dirNode.getNodeStruct()
+  let l:structInfo = [{'path': self.path, 'isDir': self.isDir, 'isOpen': self.isOpen}]
+
+  if has_key(self, 'childNodes')
+    for l:child in keys(self.childNodes)
+      let l:childNode = self.childNodes[l:child]
+      if l:childNode.isDir
+        let l:structInfo += l:childNode.getNodeStruct()
+      else
+        let l:structInfo += [{'path': l:childNode.path, 'isDir': l:childNode.isDir}]
+      endif
+    endfo
+  endif
+
+  return l:structInfo
+endfu

@@ -7,7 +7,7 @@ fu! s:scourManager.new(scour)
   let l:newManager = copy(self)
   let l:newManager.scour = a:scour
   let l:newManager.library = g:ScourLibrary.new(l:newManager)
-  cal l:newManager.initWindows(l:newManager)
+  " cal l:newManager.initWindows(l:newManager)
 
   return l:newManager
 endfu
@@ -17,10 +17,10 @@ fu! s:scourManager.initWindows(manager)
 endfu
 
 fu! s:scourManager.resetWindows()
-  let self.scour.windows.ScourShelf.isOpen = 0
-  let self.scour.windows.ScourShelf.winId = -1
-  let self.scour.windows.ScourTray.isOpen = 0
-  let self.scour.windows.ScourTray.winId = -1
+  let self.scour.menu.ScourShelf.isOpen = 0
+  let self.scour.menu.ScourShelf.winId = -1
+  let self.scour.menu.ScourTray.isOpen = 0
+  let self.scour.menu.ScourTray.winId = -1
 endfu
 
 fu! s:scourManager.updateWindows()
@@ -35,8 +35,8 @@ fu! s:scourManager.updateWindows()
     let l:i += 1
     let l:winType = &ft
     if l:winType == 'ScourShelf' || l:winType == 'ScourTray'
-      let self.scour.windows[l:winType].isOpen = 1
-      let self.scour.windows[l:winType].winId = l:winId
+      let self.scour.menu[l:winType].isOpen = 1
+      let self.scour.menu[l:winType].winId = l:winId
     endif
   endw
 
@@ -45,8 +45,8 @@ endfu
 
 fu! s:scourManager.closeAllWindows()
   cal self.updateWindows()
-  cal self.scour.windows.ScourShelf.close()
-  cal self.scour.windows.ScourTray.close()
+  cal self.scour.menu.ScourShelf.close()
+  cal self.scour.menu.ScourTray.close()
   cal self.updateWindows()
 endfu
 
@@ -86,7 +86,7 @@ fu! s:scourManager.openAllNodes(node)
   if a:node.isDir
     let a:node.isOpen = 1
     for l:childNode in values(a:node.childNodes)
-        cal self.openAllNodes(l:childNode)
+      cal self.openAllNodes(l:childNode)
     endfo
   endif
 
@@ -118,10 +118,10 @@ fu! s:scourManager.select()
   let l:winId = win_getid()
   cal self.updateWindows()
 
-  if l:winId == self.scour.windows.ScourShelf.winId
-    cal self.scour.windows.ScourShelf.menu.select()
-  elseif l:winId == self.scour.windows.ScourTray.winId
-    cal self.scour.windows.ScourTray.menu.select()
+  if l:winId == self.scour.menu.ScourShelf.winId
+    cal self.scour.menu.ScourShelf.select(l:line)
+  elseif l:winId == self.scour.menu.ScourTray.winId
+    cal self.scour.menu.ScourTray.select(l:line)
   end
 endfu
 

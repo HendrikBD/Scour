@@ -21,19 +21,21 @@ function s:scour.new(root)
   let l:newScour.root = g:ScourDirNode.new(a:root, l:newScour.manager)
   let l:newScour.root.isOpen = 1
 
+  let l:dataSource = {'type': 'tree', 'data': l:newScour.root}
+  let l:newScour.menu = g:ScourMenu.new(l:newScour.manager, l:dataSource)
+
   return l:newScour
 endfu
 
 
 function s:scour.openCWD()
+
   cal self.manager.closeAllNodes(self.root)
   let self.root.isOpen = 1
-  cal self.manager.openMode('dir', {})
 
-  " let l:dataSource = {'type': 'list', 'data': self.root.getPaths(0)}
   let l:dataSource = {'type': 'tree', 'data': self.root}
-  let self.windows.ScourShelf.menu = g:ScourMenu.new(self.manager, l:dataSource)
-  cal self.windows.ScourShelf.draw()
+  cal self.menu.updateDataSource(l:dataSource)
+  cal self.menu.open()
 
 endf
 
@@ -82,6 +84,7 @@ function s:scour.filterCWD()
   let l:dataSource = {'type': 'list', 'data': l:paths}
 
   cal self.windows.ScourShelf.initMenu(l:dataSource, 'dir')
+  " cal self.windows.ScourTray.initMenu(l:dataSource, 'selection')
 
   " cal self.prompt.addUpdateFunction(self.windows.ScourShelf.updateFromFilter)
   " cal self.manager.initPrompt()
@@ -114,6 +117,9 @@ fu s:scour.drawHeader(lineIndex)
 
   return l:lineIndex
 endfu
+
+
+
 
 function s:scour.displayCWD()
   call self.window.openWindow()
@@ -223,5 +229,6 @@ endfu
 
 let g:Scour = s:scour.new(getcwd())
 
-nnoremap <silent> <leader>/ :cal g:Scour.filterCWD()<CR>
-nnoremap <silent> <leader>c :cal g:Scour.manager.closeAllWindows()<CR>
+nnoremap <silent> <leader>/ :cal g:Scour.openCWD()<CR>
+" nnoremap <silent> <leader>/ :cal g:Scour.filterCWD()<CR>
+" nnoremap <silent> <leader>c :cal g:Scour.manager.closeAllWindows()<CR>

@@ -7,7 +7,10 @@ let g:ScourMenu = s:menu
 function s:menu.new(manager, dataSource, ...)
   let l:newMenu = copy(self)
   let l:newMenu.manager = a:manager
+  let l:newMenu.ScourShelf = g:ScourShelf.new(a:manager, l:newMenu)
+  let l:newMenu.ScourTray = g:ScourTray.new(a:manager, l:newMenu)
   let l:newMenu.header = []
+
   cal l:newMenu.updateDataSource(a:dataSource)
   cal l:newMenu.resetOptions()
 
@@ -18,6 +21,24 @@ function s:menu.new(manager, dataSource, ...)
   return l:newMenu
 endfu
 
+fu! s:menu.open()
+  cal self.manager.updateWindows()
+  if self.options.shelf
+    cal self.ScourShelf.open()
+    cal self.draw()
+    cal self.manager.library.setHotkeys()
+  endif
+  if self.options.tray
+    cal self.ScourTray.open()
+    cal self.draw()
+    cal self.manager.library.setHotkeys()
+  endif
+endfu
+
+fu! s:menu.close()
+  cal self.ScourShelf.close()
+  cal self.ScourTray.close()
+endfu
 
 fu! s:menu.drawTree()
   if self.scour.window.isOpen('ScourShelf')
@@ -36,7 +57,7 @@ fu! s:menu.buildTreeFromArray()
 endfu
 
 fu! s:menu.resetOptions()
-  let self.options = {'indent': 1, 'fullPath': 0}
+  let self.options = {'indent': 1, 'fullPath': 0, 'shelf': 1, 'tray': 0}
 endfu
 
 fu! s:menu.setOptions(options)
@@ -46,64 +67,49 @@ fu! s:menu.setOptions(options)
 endfu
 
 fu! s:menu.updateDataSource(dataSource)
+
   if a:dataSource.type == 'tree'
-    let self.items = self.buildFromNode(a:dataSource.data)
+    let a:dataSource.data.isOpen = 1
+    let self.menuTree = self.buildFromNode(a:dataSource.data)
+
   elseif a:dataSource.type == 'list'
     let self.menuTree = self.buildFromList(a:dataSource.data)
-    let self.items = self.collapseTreeToList(self.menuTree)
 
     let l:itemInfo = self.manager.library.stringifyObject(self.getMenuItems())
     cal self.drawFromArray(l:itemInfo)
   el
     echoerr 'Invalid dataSource'
   endif
-  " cal self.updateLineMap()
+  let self.items = self.collapseTreeToList(self.menuTree)
+
 endfu
 
 fu! s:menu.buildFromNode(node)
-  if a:node.isDir
-    let l:item = {'type': 'dirNode', 'node': a:node}
-  el
-    let l:item = {'type': 'fileNode', 'node': a:node}
-  endif
+  let l:menuTree = g:ScourMenuTree.new(a:node.path, self.manager)
 
-  let l:items = [l:item]
-
-  if a:node.isDir && a:node.isOpen
-    for l:child in values(a:node.childNodes)
-      let l:items += self.buildFromNode(l:child)
-    endfo
-  endif
-
-  return l:items
-endfu
-
-fu! s:menu.getMenuPaths()
-  let l:itemPaths = []
-  for l:item in self.items
-    if has_key(l:item.menuTree, 'path')
-      let l:itemPaths += [l:item.menuTree.path]
-      let l:itemPaths += [l:item.menuTree.options]
-    else
-      echoerr 'No "path" key found on menuItem'
+  for l:child in keys(a:node.childNodes)
+    if !has_key(l:menuTree, 'childNodes')
+      let l:menuTree.childNodes = {}
     endif
-  endfo
-  return l:itemPaths
-endfu
+    let l:childNode = a:node.childNodes[l:child]
 
-fu! s:menu.getMenuItems()
-  let l:items = []
-  for l:item in self.items
-    if has_key(l:item, 'displayStr')
-      let l:items += [l:item.displayStr]
+    if l:childNode.isDir && l:childNode.isOpen
+      " let l:menuTree.childNodes[l:child] = g:ScourMenuTree.new(l:childNode.path, self.manager)
+
+      let l:menuTree.childNodes[l:child] = self.buildFromNode(l:childNode)
+      " let l:menuTree.childNodes[l:child] = l:childNode
+      " let l:menuTree = g:ScourMenuTree.new(a:node.path, self.manager)
     else
-      " echo l:item
-      echoerr 'No "displayStr" key found on menuItem'
+      let l:menuTree.childNodes[l:child] = g:ScourMenuTree.new(l:childNode.path, self.manager)
+      " let l:menuTree.childNodes[l:child] = l:childNode
+      " echo self.buildFromNode(l:childNode)
     endif
-  endfo
-  return l:items
-endfu
 
+  endfo
+
+
+  return l:menuTree
+endfu
 
 " Builds a menu from a set of given paths, for each path a menuItem is created
 " with the relevant node
@@ -137,7 +143,7 @@ fu s:menu.collapseTreeToList(menuTree)
   if a:menuTree.options.collapsable && has_key(a:menuTree, 'childNodes') && len(keys(a:menuTree.childNodes)) == 1 && values(a:menuTree.childNodes)[0].node.isDir
     let l:menuTree = self.getCollapsedTree(a:menuTree)
     let l:displayStr = split(a:menuTree.path, '/')[-1] . split(l:menuTree.path, a:menuTree.path)[0]
-    let l:items = [g:ScourMenuItem.new(l:menuTree, l:displayStr)]
+    let l:items = [g:ScourMenuItem.new(l:menuTree, l:displayStr, {'collapsed': 1})]
   else
     let l:menuTree = a:menuTree
     let l:items = [g:ScourMenuItem.new(a:menuTree)]
@@ -153,6 +159,33 @@ fu s:menu.collapseTreeToList(menuTree)
 
   return l:items
 endfu
+
+fu! s:menu.getMenuPaths()
+  let l:itemPaths = []
+  for l:item in self.items
+    if has_key(l:item.menuTree, 'path')
+      let l:itemPaths += [l:item.menuTree.path]
+      let l:itemPaths += [l:item.menuTree.options]
+    else
+      echoerr 'No "path" key found on menuItem'
+    endif
+  endfo
+  return l:itemPaths
+endfu
+
+fu! s:menu.getMenuItems()
+  let l:items = []
+  for l:item in self.items
+    if has_key(l:item, 'displayStr')
+      let l:items += [l:item.displayStr]
+    else
+      " echo l:item
+      echoerr 'No "displayStr" key found on menuItem'
+    endif
+  endfo
+  return l:items
+endfu
+
 
 
 fu s:menu.getCollapsedTree(menuTree)
@@ -216,12 +249,12 @@ fu s:menu.draw()
     let l:indent = ''
 
     for l:item in self.items
-      let l:displayStr = l:item.node.getDisplayString()
-      let l:indent = self.manager.library.getIndentFromPath(l:item.node.path)
+      let l:displayStr = l:item.displayStr
+      let l:indent = self.manager.library.getIndentFromPath(l:item.menuTree.path)
       if self.options.indent
-        let self.displayArr += [l:indent . l:item.node.getDisplayString(self.options)]
+        let self.displayArr += [l:indent . l:item.displayStr]
       el
-        let self.displayArr += [l:item.node.getDisplayString(self.options)]
+        let self.displayArr += [l:item.displayStr]
       endif
     endfo
 
