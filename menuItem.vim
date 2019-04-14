@@ -1,9 +1,10 @@
 let s:menuItem = {}
 let g:ScourMenuItem = s:menuItem
 
-function s:menuItem.new(menuTree, ...)
+function s:menuItem.new(menuTree, menu, ...)
   let l:newMenuItem = copy(self)
   let l:newMenuItem.menuTree = a:menuTree
+  let l:newMenuItem.menu = a:menu
   cal l:newMenuItem.resetOptions()
 
   if exists('a:1')

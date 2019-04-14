@@ -35,13 +35,19 @@ fu! s:scourShelf.close()
   endif
 endfu
 
-fu! s:scourShelf.select(line)
-  " Check line map to find menuItem
-  " if dir
-  "   if collapasble, set all menuTrees to collapsable = 0
-  "   if closed open (if open close)
-  "   redraw menu (both windows if applicable)
-  " if not dir, open file
+fu! s:scourShelf.selectLine(line)
+  let l:item = self.items[a:line - len(self.header) - 1]
+  let l:col = col('.')
+  let l:line = line('.')
+  if l:item.menuTree.node.isDir
+    let l:item.menuTree.node.isOpen = !l:item.menuTree.node.isOpen
+    cal self.menu.updateMenu()
+    cal self.draw()
+    cal cursor(l:line, l:col)
+  else
+    q
+    exec 'e ' . l:item.menuTree.path
+  endif
 endfu
 
 fu! s:scourShelf.draw()
@@ -51,6 +57,7 @@ fu! s:scourShelf.draw()
     cal self.drawHeader()
     cal self.drawItems()
     1delete
+    cal cursor(len(self.header) + 1, 3)
   endif
 endfu
 

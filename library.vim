@@ -63,7 +63,7 @@ endf
 
 
 fu s:scourLibrary.setHotkeys()
-  nnoremap <silent> <buffer> <CR> :cal g:Scour.menu.selectLine()<CR>
+  nnoremap <silent> <buffer> <CR> :cal g:Scour.menu.selectCurrentLine()<CR>
   nnoremap <silent> <buffer> <Esc> :cal g:Scour.manager.closeAllWindows()<CR>
 endfu
 

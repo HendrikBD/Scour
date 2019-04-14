@@ -68,14 +68,21 @@ endfu
 
 fu! s:menu.updateDataSource(dataSource)
 
-  if a:dataSource.type == 'tree'
-    let a:dataSource.data.isOpen = 1
-    let self.menuTree = self.buildFromNode(a:dataSource.data)
+  let self.dataSource = a:dataSource
+  cal self.updateMenu()
+
+endfu
+
+fu! s:menu.updateMenu()
+  echo 'updating menu'
+  if self.dataSource.type == 'tree'
+    let self.dataSource.data.isOpen = 1
+    let self.menuTree = self.buildFromNode(self.dataSource.data)
     let self.ScourShelf.items = self.collapseTreeToList(self.menuTree)
     let self.ScourTray.items = self.getListItems(self.menuTree)
 
-  elseif a:dataSource.type == 'list'
-    let self.menuTree = self.buildFromList(a:dataSource.data)
+  elseif self.dataSource.type == 'list'
+    let self.menuTree = self.buildFromList(self.dataSource.data)
     let self.shelf.items = self.collapseTreeToList(self.menuTree)
     let self.tray.items = self.collapseTreeToList(self.menuTree)
 
@@ -84,12 +91,10 @@ fu! s:menu.updateDataSource(dataSource)
   el
     echoerr 'Invalid dataSource'
   endif
-  " echo self.ScourTray.items
-  " let self.items = self.collapseTreeToList(self.menuTree)
-
 endfu
 
 fu! s:menu.buildFromNode(node)
+
   let l:menuTree = g:ScourMenuTree.new(a:node.path, self.manager)
 
   for l:child in keys(a:node.childNodes)
@@ -99,21 +104,14 @@ fu! s:menu.buildFromNode(node)
     let l:childNode = a:node.childNodes[l:child]
 
     if l:childNode.isDir && l:childNode.isOpen
-      " let l:menuTree.childNodes[l:child] = g:ScourMenuTree.new(l:childNode.path, self.manager)
-
       let l:menuTree.childNodes[l:child] = self.buildFromNode(l:childNode)
-      " let l:menuTree.childNodes[l:child] = l:childNode
-      " let l:menuTree = g:ScourMenuTree.new(a:node.path, self.manager)
     else
       let l:menuTree.childNodes[l:child] = g:ScourMenuTree.new(l:childNode.path, self.manager)
-      " let l:menuTree.childNodes[l:child] = l:childNode
-      " echo self.buildFromNode(l:childNode)
     endif
-
   endfo
 
-
   return l:menuTree
+
 endfu
 
 " Builds a menu from a set of given paths, for each path a menuItem is created
@@ -148,10 +146,10 @@ fu s:menu.collapseTreeToList(menuTree)
   if a:menuTree.options.collapsable && has_key(a:menuTree, 'childNodes') && len(keys(a:menuTree.childNodes)) == 1 && values(a:menuTree.childNodes)[0].node.isDir
     let l:menuTree = self.getCollapsedTree(a:menuTree)
     let l:displayStr = split(a:menuTree.path, '/')[-1] . split(l:menuTree.path, a:menuTree.path)[0]
-    let l:items = [g:ScourMenuItem.new(l:menuTree, l:displayStr, {'collapsed': 1})]
+    let l:items = [g:ScourMenuItem.new(l:menuTree, self, l:displayStr, {'collapsed': 1})]
   else
     let l:menuTree = a:menuTree
-    let l:items = [g:ScourMenuItem.new(a:menuTree)]
+    let l:items = [g:ScourMenuItem.new(a:menuTree, self)]
   endif
 
   " Next, go through child nodes and add to item list
@@ -169,21 +167,9 @@ fu s:menu.getListItems(menuTree)
 
   if !a:menuTree.options.collapsable
     let l:menuTree = a:menuTree
-    let l:items = [g:ScourMenuItem.new(a:menuTree)]
+    let l:items = [g:ScourMenuItem.new(a:menuTree, self)]
   else
     let l:items = []
-  endif
-
-  if has_key(a:menuTree, 'childNodes') && len(keys(a:menuTree.childNodes)) == 1 && values(a:menuTree.childNodes)[0].node.isDir
-  endif
-
-  if a:menuTree.options.collapsable && has_key(a:menuTree, 'childNodes') && len(keys(a:menuTree.childNodes)) == 1 && values(a:menuTree.childNodes)[0].node.isDir
-    let l:menuTree = self.getCollapsedTree(a:menuTree)
-    let l:displayStr = split(a:menuTree.path, '/')[-1] . split(l:menuTree.path, a:menuTree.path)[0]
-    let l:items = [g:ScourMenuItem.new(l:menuTree, l:displayStr, {'collapsed': 1})]
-  else
-    let l:menuTree = a:menuTree
-    let l:items = [g:ScourMenuItem.new(a:menuTree)]
   endif
 
   " Next, go through child nodes and add to item list
@@ -332,20 +318,12 @@ fu! s:menu.openFile(menuItem)
   execute 'edit ' . l:path
 endfu
 
-fu! s:menu.selectLine()
-  let l:menuIndex = line('.') - 1
-  " echo l:menuIndex
-  " let self.selection = self.items[l:menuIndex]
-
-  " if self.selection.node.isDir
-  "   let self.selection.node.isOpen = !self.selection.node.isOpen
-  " el
-  "   cal self.openFile(self.selection)
-  " endif
-endfu
-
-fu! s:menu.select(menuItem)
-  echo menuItem
+fu! s:menu.selectCurrentLine()
+  let l:line = line('.')
+  let l:wind = &ft
+  if l:wind == 'ScourShelf' || l:wind == 'ScourTray'
+    cal self[l:wind].selectLine(l:line)
+  endif
 endfu
 
 " Toggle directory at given line
