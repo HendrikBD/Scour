@@ -30,11 +30,12 @@ endfu
 
 function s:scour.openCWD()
 
+  " Initialize datasource
   cal self.manager.closeAllNodes(self.root)
   let self.root.isOpen = 1
-
   let l:dataSource = {'type': 'tree', 'data': self.root}
   cal self.menu.updateDataSource(l:dataSource)
+
   cal self.menu.open()
 
 endf

@@ -50,6 +50,19 @@ fu! s:scourManager.closeAllWindows()
   cal self.updateWindows()
 endfu
 
+fu s:scourManager.drawFromArray(array, ...)
+  if exists('a:1')
+    let l:index = a:1
+  else
+    let l:index = 1
+  endif
+
+  if &ft == 'ScourShelf' || &ft == 'ScourTray'
+    cal append(l:index, a:array)
+    cal cursor(1, 1)
+  endif
+endfu
+
 
 fu! s:scourManager.openMode(mode, options)
   cal self.updateWindows()

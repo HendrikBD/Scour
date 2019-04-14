@@ -25,7 +25,7 @@ fu! s:menu.open()
   cal self.manager.updateWindows()
   if self.options.shelf
     cal self.ScourShelf.open()
-    cal self.draw()
+    cal self.ScourShelf.draw()
     cal self.manager.library.setHotkeys()
   endif
   if self.options.tray
@@ -71,16 +71,21 @@ fu! s:menu.updateDataSource(dataSource)
   if a:dataSource.type == 'tree'
     let a:dataSource.data.isOpen = 1
     let self.menuTree = self.buildFromNode(a:dataSource.data)
+    let self.ScourShelf.items = self.collapseTreeToList(self.menuTree)
+    let self.ScourTray.items = self.getListItems(self.menuTree)
 
   elseif a:dataSource.type == 'list'
     let self.menuTree = self.buildFromList(a:dataSource.data)
+    let self.shelf.items = self.collapseTreeToList(self.menuTree)
+    let self.tray.items = self.collapseTreeToList(self.menuTree)
 
     let l:itemInfo = self.manager.library.stringifyObject(self.getMenuItems())
     cal self.drawFromArray(l:itemInfo)
   el
     echoerr 'Invalid dataSource'
   endif
-  let self.items = self.collapseTreeToList(self.menuTree)
+  " echo self.ScourTray.items
+  " let self.items = self.collapseTreeToList(self.menuTree)
 
 endfu
 
@@ -136,10 +141,10 @@ fu s:menu.buildFromList(pathArr)
 
 endfu
 
+" First add the current tree, including checking if it can be collapsed, and
+" if so, collapsing adding items from appropriate child
 fu s:menu.collapseTreeToList(menuTree)
 
-  " First add the current tree, including checking if it can be collapsed, and
-  " if so, collapsing adding items from appropriate child
   if a:menuTree.options.collapsable && has_key(a:menuTree, 'childNodes') && len(keys(a:menuTree.childNodes)) == 1 && values(a:menuTree.childNodes)[0].node.isDir
     let l:menuTree = self.getCollapsedTree(a:menuTree)
     let l:displayStr = split(a:menuTree.path, '/')[-1] . split(l:menuTree.path, a:menuTree.path)[0]
@@ -154,6 +159,38 @@ fu s:menu.collapseTreeToList(menuTree)
     for l:relChild in keys(l:menuTree.childNodes)
       let l:childTree = l:menuTree.childNodes[l:relChild]
       let l:items += self.collapseTreeToList(l:childTree)
+    endfo
+  endif
+
+  return l:items
+endfu
+
+fu s:menu.getListItems(menuTree)
+
+  if !a:menuTree.options.collapsable
+    let l:menuTree = a:menuTree
+    let l:items = [g:ScourMenuItem.new(a:menuTree)]
+  else
+    let l:items = []
+  endif
+
+  if has_key(a:menuTree, 'childNodes') && len(keys(a:menuTree.childNodes)) == 1 && values(a:menuTree.childNodes)[0].node.isDir
+  endif
+
+  if a:menuTree.options.collapsable && has_key(a:menuTree, 'childNodes') && len(keys(a:menuTree.childNodes)) == 1 && values(a:menuTree.childNodes)[0].node.isDir
+    let l:menuTree = self.getCollapsedTree(a:menuTree)
+    let l:displayStr = split(a:menuTree.path, '/')[-1] . split(l:menuTree.path, a:menuTree.path)[0]
+    let l:items = [g:ScourMenuItem.new(l:menuTree, l:displayStr, {'collapsed': 1})]
+  else
+    let l:menuTree = a:menuTree
+    let l:items = [g:ScourMenuItem.new(a:menuTree)]
+  endif
+
+  " Next, go through child nodes and add to item list
+  if has_key(l:menuTree, 'childNodes')
+    for l:relChild in keys(l:menuTree.childNodes)
+      let l:childTree = l:menuTree.childNodes[l:relChild]
+      let l:items += self.getListItems(l:childTree)
     endfo
   endif
 
@@ -295,15 +332,20 @@ fu! s:menu.openFile(menuItem)
   execute 'edit ' . l:path
 endfu
 
-fu! s:menu.select()
+fu! s:menu.selectLine()
   let l:menuIndex = line('.') - 1
-  let self.selection = self.items[l:menuIndex]
+  " echo l:menuIndex
+  " let self.selection = self.items[l:menuIndex]
 
-  if self.selection.node.isDir
-    let self.selection.node.isOpen = !self.selection.node.isOpen
-  el
-    cal self.openFile(self.selection)
-  endif
+  " if self.selection.node.isDir
+  "   let self.selection.node.isOpen = !self.selection.node.isOpen
+  " el
+  "   cal self.openFile(self.selection)
+  " endif
+endfu
+
+fu! s:menu.select(menuItem)
+  echo menuItem
 endfu
 
 " Toggle directory at given line

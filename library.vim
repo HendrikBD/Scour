@@ -45,7 +45,7 @@ endf
 " Splices the path to find the appropriate index for a given path
 "
 fu s:scourLibrary.getIndentFromPath(path)
-  let l:padding = 2
+  let l:padding = 1
 
   let l:root = self.manager.scour.root
   if l:root.path == a:path
@@ -63,7 +63,7 @@ endf
 
 
 fu s:scourLibrary.setHotkeys()
-  nnoremap <silent> <buffer> <CR> :cal g:Scour.manager.select()<CR>
+  nnoremap <silent> <buffer> <CR> :cal g:Scour.menu.selectLine()<CR>
   nnoremap <silent> <buffer> <Esc> :cal g:Scour.manager.closeAllWindows()<CR>
 endfu
 
