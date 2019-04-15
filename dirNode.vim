@@ -1,7 +1,7 @@
 let s:dirNode = {}
 let g:ScourDirNode = s:dirNode
 
-function s:dirNode.new(path, manager)
+function s:dirNode.new(path, manager, ...)
   let l:newScourDirNode = copy(self)
   let l:newScourDirNode.path = a:path
   let l:newScourDirNode.manager = a:manager
@@ -13,16 +13,24 @@ function s:dirNode.new(path, manager)
     let l:newScourDirNode.searchStr = join(split(a:path, '/')[-2:-1], '/')
   endif
 
+  if exists('a:1')
+    let l:newScourDirNode.isRoot = 0
+    let l:newScourDirNode.relPath = split(a:1, '/')[-1] . split(a:path, a:1)[-1]
+    cal l:newScourDirNode.loadChildren(a:manager, a:1)
+  else
+    let l:newScourDirNode.isRoot = 1
+    let l:newScourDirNode.relPath = split(a:path, '/')[-1]
+    cal l:newScourDirNode.loadChildren(a:manager, l:newScourDirNode.path)
+  endif
+
   let l:newScourDirNode.isOpen = 0
   let l:newScourDirNode.isDir = 1
-
-  cal l:newScourDirNode.loadChildren(a:manager)
   
   return l:newScourDirNode
 
 endfu
 
-function s:dirNode.loadChildren(manager)
+function s:dirNode.loadChildren(manager, rootPath)
   let l:childPaths = split(globpath(self.path, '*'), '\n')
 
   let self.childNodes = {}
@@ -32,12 +40,14 @@ function s:dirNode.loadChildren(manager)
     if isdirectory(l:childPath)
       let l:localPath = split(l:childPath, self.path . '/')[0]
       if !self.manager.isIgnoredDir(l:localPath)
-        let self.childNodes[l:localPath] = g:ScourDirNode.new(l:childPath, a:manager)
+        let self.childNodes[l:localPath] = g:ScourDirNode.new(l:childPath, a:manager, a:rootPath)
       endif
     el
-      let self.childNodes[split(l:childPath, self.path . '/')[0]] = g:ScourFileNode.new(l:childPath, a:manager)
+      let self.childNodes[split(l:childPath, self.path . '/')[0]] = g:ScourFileNode.new(l:childPath, a:manager, a:rootPath)
     en
+
   endfo
+
 endf
 
 

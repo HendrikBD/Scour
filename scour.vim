@@ -1,6 +1,3 @@
-" so  /home/bhd-windows/.vim/homebrew/scour/helper.vim
-" so  /home/bhd-windows/.vim/homebrew/scour/keymap.vim
-
 so  /home/bhd-windows/.vim/homebrew/scour/manager.vim
 so  /home/bhd-windows/.vim/homebrew/scour/shelf.vim
 so  /home/bhd-windows/.vim/homebrew/scour/tray.vim
@@ -33,6 +30,8 @@ function s:scour.openCWD()
   " Initialize datasource
   cal self.manager.closeAllNodes(self.root)
   let self.root.isOpen = 1
+
+  cal self.menu.resetOptions()
   let l:dataSource = {'type': 'tree', 'data': self.root}
   cal self.menu.updateDataSource(l:dataSource)
 
@@ -74,17 +73,22 @@ function s:scour.filterCWD()
   "   (including collapsing nodes if lonely) then c
 
   cal self.manager.openAllNodes(self.root)
-  cal self.manager.openMode('selection', {})
 
   let l:paths = self.root.getPaths(0)
   let l:paths = filter(l:paths, 'v:val != "/home/bhd-windows/.vim/homebrew/scour/doc"')
-  " let l:paths = filter(l:paths, 'v:val != "/home/bhd-windows/.vim/homebrew/scour/doc/Scour.txt"')
-  " let l:paths = filter(l:paths, 'v:val != "/home/bhd-windows/.vim/homebrew/scour/doc/test"')
+  let l:paths = filter(l:paths, 'v:val != "/home/bhd-windows/.vim/homebrew/scour/doc/Scour.txt"')
+  let l:paths = filter(l:paths, 'v:val != "/home/bhd-windows/.vim/homebrew/scour/doc/test"')
   " let l:paths = filter(l:paths, 'v:val != "/home/bhd-windows/.vim/homebrew/scour/doc/test/test2"')
 
-  let l:dataSource = {'type': 'list', 'data': l:paths}
 
-  cal self.windows.ScourShelf.initMenu(l:dataSource, 'dir')
+  cal self.menu.setOptions({'tray': 1})
+
+  let l:dataSource = {'type': 'list', 'data': l:paths}
+  cal self.menu.updateDataSource(l:dataSource)
+
+  cal self.menu.open()
+
+  " cal self.windows.ScourShelf.initMenu(l:dataSource, 'dir')
   " cal self.windows.ScourTray.initMenu(l:dataSource, 'selection')
 
   " cal self.prompt.addUpdateFunction(self.windows.ScourShelf.updateFromFilter)
@@ -230,6 +234,7 @@ endfu
 
 let g:Scour = s:scour.new(getcwd())
 
-nnoremap <silent> <leader>/ :cal g:Scour.openCWD()<CR>
-" nnoremap <silent> <leader>/ :cal g:Scour.filterCWD()<CR>
+nnoremap <silent> <leader>/ :cal g:Scour.filterCWD()<CR>
+nnoremap <silent> <leader>f :cal g:Scour.openCWD()<CR>
+" nnoremap <silent> <leader>/ :cal g:Scour.openCWD()<CR>
 " nnoremap <silent> <leader>c :cal g:Scour.manager.closeAllWindows()<CR>

@@ -23,14 +23,14 @@ endfu
 
 fu! s:menu.open()
   cal self.manager.updateWindows()
+  if self.options.tray
+    cal self.ScourTray.open()
+    cal self.ScourTray.draw()
+    cal self.manager.library.setHotkeys()
+  endif
   if self.options.shelf
     cal self.ScourShelf.open()
     cal self.ScourShelf.draw()
-    cal self.manager.library.setHotkeys()
-  endif
-  if self.options.tray
-    cal self.ScourTray.open()
-    cal self.draw()
     cal self.manager.library.setHotkeys()
   endif
 endfu
@@ -74,20 +74,15 @@ fu! s:menu.updateDataSource(dataSource)
 endfu
 
 fu! s:menu.updateMenu()
-  echo 'updating menu'
   if self.dataSource.type == 'tree'
     let self.dataSource.data.isOpen = 1
     let self.menuTree = self.buildFromNode(self.dataSource.data)
     let self.ScourShelf.items = self.collapseTreeToList(self.menuTree)
     let self.ScourTray.items = self.getListItems(self.menuTree)
-
   elseif self.dataSource.type == 'list'
     let self.menuTree = self.buildFromList(self.dataSource.data)
-    let self.shelf.items = self.collapseTreeToList(self.menuTree)
-    let self.tray.items = self.collapseTreeToList(self.menuTree)
-
-    let l:itemInfo = self.manager.library.stringifyObject(self.getMenuItems())
-    cal self.drawFromArray(l:itemInfo)
+    let self.ScourShelf.items = self.collapseTreeToList(self.menuTree)
+    let self.ScourTray.items = self.collapseTreeToList(self.menuTree)
   el
     echoerr 'Invalid dataSource'
   endif
@@ -308,9 +303,6 @@ fu! s:menu.filterCWD()
 
   cal self.prompt.start()
 endfu
-
-" fu s:scour.update()
-" endfu
 
 fu! s:menu.openFile(menuItem)
   let l:path = a:menuItem.node.getPath()

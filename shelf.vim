@@ -19,9 +19,9 @@ fu! s:scourShelf.open()
     vertical resize 40
     cal self.manager.library.setBufOptions()
     setlocal filetype=ScourShelf
+    let self.isOpen = 1
+    let self.winId = win_getid()
   endif
-  let self.isOpen = 1
-  let self.winId = win_getid()
 endfu
 
 fu! s:scourShelf.close()
@@ -45,15 +45,15 @@ fu! s:scourShelf.selectLine(line)
     cal self.draw()
     cal cursor(l:line, l:col)
   else
-    q
+    cal self.manager.closeAllWindows()
     exec 'e ' . l:item.menuTree.path
   endif
 endfu
 
 fu! s:scourShelf.draw()
   if self.isOpen
-    1,$delete
     cal win_gotoid(self.winId)
+    1,$delete
     cal self.drawHeader()
     cal self.drawItems()
     1delete

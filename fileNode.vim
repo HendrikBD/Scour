@@ -1,7 +1,7 @@
 let s:scourFileNode = {}
 let g:ScourFileNode = s:scourFileNode
 
-function s:scourFileNode.new(path, manager)
+function s:scourFileNode.new(path, manager, rootPath)
   let l:newScourFileNode = copy(self)
   let l:newScourFileNode.path = a:path
   let l:newScourFileNode.manager = a:manager
@@ -9,6 +9,7 @@ function s:scourFileNode.new(path, manager)
   let l:newScourFileNode.searchStr = join(split(a:path, '/')[-2:-1], '/')
 
   let l:newScourFileNode.isDir = 0
+  let l:newScourFileNode.relPath = split(a:rootPath, '/')[-1] . split(a:path, a:rootPath)[-1]
   
   return l:newScourFileNode
 endfu
