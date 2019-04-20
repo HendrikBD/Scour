@@ -41,7 +41,6 @@ fu! s:scourTray.selectLine(line)
 endfu
 
 fu! s:scourTray.draw()
-  echo self.isOpen
   if self.isOpen
     cal win_gotoid(self.winId)
     1,$delete

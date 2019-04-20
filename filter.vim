@@ -36,8 +36,8 @@ fu! s:filter.fzf(list, term)
 "   let s:findCmd = s:findCmd[0:strlen(s:findCmd)-3]
 "   let s:findCmd = s:findCmd . ' | fzf --filter="' . a:term . '"'
 
-  let self.outputArr = split(system('xargs printf | fzf --filter="' . a:term . '"', shellescape(join(a:list, '\n'))), '\n')
-  return self.outputArr
+  let self.outputList = split(system('xargs printf | fzf --filter="' . a:term . '"', shellescape(join(a:list, '\n'))), '\n')
+  return self.outputList
 endfu
 
 

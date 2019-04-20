@@ -1,16 +1,23 @@
 let s:prompt = {}
 let g:ScourPrompt = s:prompt
 
-function s:prompt.new()
+function s:prompt.new(manager)
   let l:newPrompt = copy(self)
+  let l:newPrompt.manager = a:manager
   let l:newPrompt.value = ''
   let l:newPrompt.keyInput = 0
   let l:newPrompt.updateFcns = []
+  let l:newPrompt.updateStack = []
 
   return l:newPrompt
 endfu
 
 fu! s:prompt.startKeyLoop()
+  let self.keyInput = 1
+  let self.value = ''
+  let self.updateStack = [{'value': self.value, 'init': 0}]
+  cal self.nextUpdate()
+
   redraw!
   echo self.value
 
@@ -30,13 +37,21 @@ fu! s:prompt.startKeyLoop()
       el
         let self.value = ''
       endif
-      call self.update()
+      cal self.pushUpdate(self.value)
+      call self.draw()
     elseif l:nr != 0
       let self.value = self.value . nr2char(l:nr)
-      call self.update()
+      cal self.pushUpdate(self.value)
+      call self.draw()
     endif
 
   endw
+endf
+
+fu! s:prompt.pushUpdate(value)
+  let self.updateStack += [{'value': a:value, 'init': 0}]
+  cal self.manager.onPromptUpdate()
+  cal self.nextUpdate()
 endf
 
 fu! s:prompt.start()
@@ -60,13 +75,37 @@ fu! s:prompt.toggle()
   endif
 endf
 
-fu! s:prompt.update()
+fu! s:prompt.draw()
+  redraw!
+  echo self.value
+endf
+
+fu! s:prompt.nextUpdate()
+  if len(self.updateStack) > 0
+    if self.updateStack[0].init == 0
+      cal g:Promise.new({resolve -> self.updateResolver(resolve, self.updateStack[0].value)}).then({-> self.nextUpdate()})
+    endif
+  endif
+endf
+
+fu! s:prompt.updateResolver(resolve, value)
+
   for l:UpdateFcn in self.updateFcns
     call l:UpdateFcn()
   endfo
 
-  redraw!
-  echo self.value
+  " redraw!
+  " echo self.value
+
+  let self.updateStack = self.updateStack[1:-1]
+  cal a:resolve()
+
+endf
+
+fu! s:prompt.pruneUpdateStack()
+  if len(self.updateStack) > 1
+    let self.updateStack = [self.updateStack[0], self.updateStack[-1]]
+  endif
 endf
 
 fu! s:prompt.addUpdateFunction(callback)

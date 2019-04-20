@@ -6,13 +6,14 @@ so  /home/bhd-windows/.vim/homebrew/scour/dirNode.vim
 so  /home/bhd-windows/.vim/homebrew/scour/menu.vim
 so  /home/bhd-windows/.vim/homebrew/scour/prompt.vim
 so  /home/bhd-windows/.vim/homebrew/scour/filter.vim
+so  /home/bhd-windows/.vim/homebrew/scour/lib/Promise.vim
 
 let s:scour={}
 
 function s:scour.new(root)
   let l:newScour = copy(self)
   let l:newScour.manager = g:ScourManager.new(l:newScour)
-  let l:newScour.prompt = g:ScourPrompt.new()
+  let l:newScour.prompt = g:ScourPrompt.new(l:newScour.manager)
   let l:newScour.filter = g:ScourFilter.new()
 
   let l:newScour.root = g:ScourDirNode.new(a:root, l:newScour.manager)
@@ -74,26 +75,39 @@ function s:scour.filterCWD()
 
   cal self.manager.openAllNodes(self.root)
 
+  " Get initial paths to filter
+  "
   let l:paths = self.root.getPaths(0)
   let l:paths = filter(l:paths, 'v:val != "/home/bhd-windows/.vim/homebrew/scour/doc"')
   let l:paths = filter(l:paths, 'v:val != "/home/bhd-windows/.vim/homebrew/scour/doc/Scour.txt"')
   let l:paths = filter(l:paths, 'v:val != "/home/bhd-windows/.vim/homebrew/scour/doc/test"')
   " let l:paths = filter(l:paths, 'v:val != "/home/bhd-windows/.vim/homebrew/scour/doc/test/test2"')
 
-
   cal self.menu.setOptions({'tray': 1})
 
-  let l:dataSource = {'type': 'list', 'data': l:paths}
-  cal self.menu.updateDataSource(l:dataSource)
+  " Add initial array of paths
+  cal self.filter.setInputArr(l:paths)
 
-  cal self.menu.open()
+  " Add update function to update filter on each prompt update & start prompt
+  cal self.prompt.addUpdateFunction(self.manager.updateFilter)
+  cal self.prompt.startKeyLoop()
 
-  " cal self.windows.ScourShelf.initMenu(l:dataSource, 'dir')
-  " cal self.windows.ScourTray.initMenu(l:dataSource, 'selection')
 
-  " cal self.prompt.addUpdateFunction(self.windows.ScourShelf.updateFromFilter)
-  " cal self.manager.initPrompt()
+  " Pass array to filter
+  " Add functions to prompt:
+  "   - Filter list by prompt value
+  "   - Create datasource from output list
+  "   - udpateDatsource
+  "   - menu.draw (shelf and tray)
+  " Start prompt
+  " On update:
+  "   - stop existing jobs
+  "   - start all functions (as job)
 
+endf
+
+function s:scour.wait(ms)
+  return g:Promise.new({resolve -> timer_start(a:ms, resolve)})
 endf
 
 function s:scour.openBuffHistory()

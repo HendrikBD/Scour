@@ -138,11 +138,18 @@ fu! s:scourManager.select()
   end
 endfu
 
-fu! s:scourManager.filterAll()
-  " let serachDict = {self.scour.root.getSearchDict()
-  " echo self.scour.root.getSearchStrings()
-  " return self.fzf(self.scour.root.getSearchStrings(), self.scour.prompt.value)
-  return self.fzf(self.scour.root.getPaths(1), self.scour.prompt.value)
+fu! s:scourManager.updateFilter()
+  let l:filterList = self.scour.filter.update(self.scour.prompt.value)
+
+  if len(l:filterList) > 0
+    let l:dataSource = {'type': 'list', 'data': l:filterList}
+  else
+    let l:dataSource = {'type': 'list', 'data': []}
+  endif
+  cal self.scour.menu.updateDataSource(l:dataSource)
+  cal self.scour.menu.open()
+
+  cal cursor(1,1)
 endfu
 
 fu! s:scourManager.fzf(list, term)
@@ -158,5 +165,7 @@ fu! s:scourManager.getRoot()
   return self.scour.root
 endfu
 
-" let s:Manager = s:scourManager.new('test')
-" cal s:Manager.openMode('selection', {})
+fu! s:scourManager.onPromptUpdate()
+  let self.scour.menu.updateRequired = 1
+  cal self.scour.prompt.pruneUpdateStack()
+endfu

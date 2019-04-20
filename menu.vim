@@ -67,10 +67,9 @@ fu! s:menu.setOptions(options)
 endfu
 
 fu! s:menu.updateDataSource(dataSource)
-
+  let self.updateRequired = 0
   let self.dataSource = a:dataSource
   cal self.updateMenu()
-
 endfu
 
 fu! s:menu.updateMenu()
@@ -89,7 +88,9 @@ fu! s:menu.updateMenu()
 endfu
 
 fu! s:menu.buildFromNode(node)
-
+  if self.updateRequired
+    return g:ScourMenuTree.new(a:node.path, self.manager)
+  endif
   let l:menuTree = g:ScourMenuTree.new(a:node.path, self.manager)
 
   for l:child in keys(a:node.childNodes)
@@ -137,6 +138,9 @@ endfu
 " First add the current tree, including checking if it can be collapsed, and
 " if so, collapsing adding items from appropriate child
 fu s:menu.collapseTreeToList(menuTree)
+  if self.updateRequired
+    return []
+  endif
 
   if a:menuTree.options.collapsable && has_key(a:menuTree, 'childNodes') && len(keys(a:menuTree.childNodes)) == 1 && values(a:menuTree.childNodes)[0].node.isDir
     let l:menuTree = self.getCollapsedTree(a:menuTree)
@@ -159,6 +163,9 @@ fu s:menu.collapseTreeToList(menuTree)
 endfu
 
 fu s:menu.getListItems(menuTree)
+  if self.updateRequired
+    return []
+  endif
 
   if !a:menuTree.options.collapsable
     let l:menuTree = a:menuTree
