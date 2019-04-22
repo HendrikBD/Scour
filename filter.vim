@@ -7,7 +7,7 @@ function s:filter.new(manager)
   let l:newFilter.inputList = []
   let l:newFilter.searchDictionary = {}
 
-  let l:newFilter.outputArr = []
+  let l:newFilter.outputList = []
   let l:newFilter.filterTerm = ''
   
   return l:newFilter
@@ -41,6 +41,14 @@ fu! s:filter.getSearchPaths(searchStrings)
     let l:paths += self.searchDictionary[l:str]
   endfo
   return l:paths
+endfu
+
+fu! s:filter.getTopResult()
+  let l:topResult = 0
+  if len(self.outputList) > 0 && has_key(self.searchDictionary, self.outputList[0])
+    let l:topResult = self.searchDictionary[self.outputList[0]][0]
+  endif
+  return l:topResult
 endfu
 
 

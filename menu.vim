@@ -333,29 +333,3 @@ fu! s:menu.toggleDir(index)
   cal self.draw()
   cal cursor(l:lineBck, 1)
 endfu
-
-fu! s:menu.cursorUp()
-  let l:newLineNum = line('.') + 1
-  cal cursor(l:newLineNum, 1)
-endfu
-
-fu! s:menu.cursorDown()
-  let l:newLineNum = line('.') - 1
-  if l:newLineNum > 0
-    cal cursor(l:newLineNum, 1)
-  endif
-endfu
-
-fu! s:menu.filter()
-  " cal self.prompt.startKeyLoop()
-endfu
-
-fu s:menu.updateFromFilter()
-  let l:filterArr = self.filter.update(self.prompt.value)
-  if len(l:filterArr) > 0
-    cal self.buildFromArray(self.filter.update(self.prompt.value), self.scour.root)
-    cal self.draw()
-    " cal self.displayFromArray(self.filter.update(self.prompt.value))
-    cal cursor(1,1)
-  endif
-endfu

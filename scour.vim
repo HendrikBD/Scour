@@ -78,20 +78,16 @@ function s:scour.filterCWD()
   " Get initial paths to filter
   "
   let l:paths = self.root.getPaths(0)
-  let l:paths = filter(l:paths, 'v:val != "/home/bhd-windows/.vim/homebrew/scour/doc"')
-  let l:paths = filter(l:paths, 'v:val != "/home/bhd-windows/.vim/homebrew/scour/doc/Scour.txt"')
-  let l:paths = filter(l:paths, 'v:val != "/home/bhd-windows/.vim/homebrew/scour/doc/test"')
-  " let l:paths = filter(l:paths, 'v:val != "/home/bhd-windows/.vim/homebrew/scour/doc/test/test2"')
-
   cal self.menu.setOptions({'tray': 1})
 
-  " Add initial array of paths
+  " " Add initial array of paths
   cal self.filter.setInputArr(l:paths)
+  cal self.filter.buildSearchDict(l:paths)
 
-  " Add update function to update filter on each prompt update & start prompt
+  " " Add update function to update filter on each prompt update & start prompt
   cal self.prompt.addUpdateFunction(self.manager.updateFilter)
+  " cal self.prompt.addUpdateFunction(self.manager.toTopFiltered)
   cal self.prompt.startKeyLoop()
-
 
   " Pass array to filter
   " Add functions to prompt:
@@ -112,7 +108,6 @@ endf
 
 function s:scour.openBuffHistory()
 endf
-
 
 function s:scour.drawAllChildNodes(indentLvl, lineIndex)
   let l:lineIndex = a:lineIndex
