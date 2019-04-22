@@ -1,9 +1,12 @@
 let s:filter = {}
 let g:ScourFilter = s:filter
 
-function s:filter.new()
+function s:filter.new(manager)
   let l:newFilter = copy(self)
+  let l:newFilter.manager = a:manager
   let l:newFilter.inputList = []
+  let l:newFilter.searchDictionary = {}
+
   let l:newFilter.outputArr = []
   let l:newFilter.filterTerm = ''
   
@@ -22,26 +25,42 @@ endfu
 
 fu! s:filter.update(term)
   let self.filterTerm = a:term
-  return self.fzf(self.inputList, a:term)
+  let l:searchList = self.getSearchList()
+  let l:searchOutput = self.fzf(l:searchList, a:term)
+
+  return self.getSearchPaths(l:searchOutput)
 endfu
+
+fu! s:filter.getSearchList()
+  return keys(self.searchDictionary)
+endfu
+
+fu! s:filter.getSearchPaths(searchStrings)
+  let l:paths = []
+  for l:str in a:searchStrings
+    let l:paths += self.searchDictionary[l:str]
+  endfo
+  return l:paths
+endfu
+
+
+fu! s:filter.buildSearchDict(paths)
+  let l:root = self.manager.getRoot()
+  let l:searchDict = {}
+  for l:path in a:paths
+    let l:searchStr = l:root.getNodeFromPath(l:path).searchStr
+    if has_key(l:searchDict, l:searchStr)
+      let l:searchDict[l:searchStr] += [l:path]
+    else
+      let l:searchDict[l:searchStr] = [l:path]
+    endif
+  endfo
+  let self.searchDictionary = l:searchDict
+endfu
+
 
 fu! s:filter.fzf(list, term)
-  " let g:NERDTreeFZFIgnore = ['"*/node_modules/*"', '"*/\.*"']
-  " let g:NERDTreeFZFIgnore = ['"*/node_modules/*"', '"*/\.git*"']
-  "
-"   " Go through ignore array and add to command
-"   for i in g:NERDTreeFZFIgnore
-"     let s:findCmd = s:findCmd . ' -not -path ' . i . ' -a'
-"   endfo
-"   let s:findCmd = s:findCmd[0:strlen(s:findCmd)-3]
-"   let s:findCmd = s:findCmd . ' | fzf --filter="' . a:term . '"'
-
-  let self.outputList = split(system('xargs printf | fzf --filter="' . a:term . '"', shellescape(join(a:list, '\n'))), '\n')
+  let l:argString = shellescape(join(a:list, '\n'))
+  let self.outputList = split(system('printf ' . l:argString . ' | fzf --filter="' . a:term . '"'), '\n')
   return self.outputList
 endfu
-
-
-" let s:filter1 = s:filter.new()
-"
-" call s:filter1.setInputArr(['test', 'heyo'])
-" echo s:filter1.update('est')

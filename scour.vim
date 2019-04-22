@@ -14,7 +14,7 @@ function s:scour.new(root)
   let l:newScour = copy(self)
   let l:newScour.manager = g:ScourManager.new(l:newScour)
   let l:newScour.prompt = g:ScourPrompt.new(l:newScour.manager)
-  let l:newScour.filter = g:ScourFilter.new()
+  let l:newScour.filter = g:ScourFilter.new(l:newScour.manager)
 
   let l:newScour.root = g:ScourDirNode.new(a:root, l:newScour.manager)
   let l:newScour.root.isOpen = 1
